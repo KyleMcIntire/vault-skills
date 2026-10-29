@@ -23,6 +23,7 @@ It is three things you can take separately:
 | 🗂️ | **A starter vault**: folders, 19 templates, hubs with live chart dashboards, Bases, animated pixel banners, a `CLAUDE.md` rules file, and fictional example notes so everything renders on first open | [`vault-template/`](vault-template/README.md) |
 | 🧰 | **A Claude Code plugin** with 20 skills, configured per vault by one `.vault-skills.yaml` file | [Skills](#the-skills) · [Config](docs/CONFIG.md) |
 | 📚 | **The design docs**: philosophy, tagging, aesthetics, workflows, architecture | [`docs/`](docs/README.md) |
+| 🎤 | **A real-world example**: the 35-slide talk this repo came out of, run on the author's actual vault (recordings pixelated), with a slide-by-slide write-up | [`examples/talk-deck/`](examples/talk-deck/README.md) |
 
 ## Quick start
 
@@ -99,6 +100,7 @@ same rules, spelled out in the vault's `CLAUDE.md` and [`docs/philosophy.md`](do
 plugins/vault-skills/skills/      20 skills, each a SKILL.md plus helper scripts and a fictional test fixture
 vault-template/                   the starter vault (open it in Obsidian)
 docs/                             philosophy, tagging, aesthetics, workflows, architecture, setup, config
+examples/talk-deck/                the talk deck (index.html), slide stills and a write-up of the real vault in use
 scripts/                          vault checker, link tools, area and vault maps, the pixel-banner engine, with tests
 .vault-skills.example.yaml        the config file, filled in with fictional values
 Makefile                          make all = lint, tests, strict link check on the template, privacy grep

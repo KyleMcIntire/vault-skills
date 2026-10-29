@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Claude &amp; Obsidian, a Match Made in Markdown</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* Palette and fonts taken from the Primary Obsidian theme; follows the system light/dark setting. */
+  :root {
+    --bg: hsl(35 36% 96%); --bg2: hsl(34 34% 90%); --line: hsl(37 38% 83%);
+    --fg: hsl(31 45% 24%); --head: hsl(33 54% 17%); --dim: hsl(35 28% 40%);
+    --accent: hsl(31 27% 36%); --accent-soft: hsl(31 27% 36% / .14);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: hsl(30 19% 15%); --bg2: hsl(29 16% 13%); --line: hsl(33 27% 33%);
+      --fg: hsl(34 39% 74%); --head: hsl(32 48% 85%); --dim: hsl(35 27% 55%);
+      --accent: hsl(30 26% 62%); --accent-soft: hsl(30 26% 62% / .16); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: hsl(30 19% 15%); --bg2: hsl(29 16% 13%); --line: hsl(33 27% 33%);
+    --fg: hsl(34 39% 74%); --head: hsl(32 48% 85%); --dim: hsl(35 27% 55%);
+    --accent: hsl(30 26% 62%); --accent-soft: hsl(30 26% 62% / .16); color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+    font: 26px/1.45 "Inter", -apple-system, "Segoe UI", Helvetica, sans-serif; overflow: hidden; }
+  section { position: absolute; inset: 0; padding: 5vh max(6vw, env(safe-area-inset-right, 0px)) 7vh max(6vw, env(safe-area-inset-left, 0px)); display: none; flex-direction: column; justify-content: center; gap: 2vh; }
+  section.on { display: flex; }
+  h1 { font-size: 3em; margin: 0; line-height: 1.1; color: var(--head); }
+  h2 { font-size: 1.6em; margin: 0; color: var(--head); }
+  h2 small { display: block; font-size: .5em; font-weight: 500; color: var(--accent); letter-spacing: .08em; text-transform: uppercase; margin-bottom: .2em; }
+  p, li { margin: 0; }
+  ul { margin: 0; padding-left: 1.1em; display: grid; gap: .4em; }
+  li::marker { color: var(--accent); }
+  .dim { color: var(--dim); }
+  .small { font-size: .74em; }
+  code, kbd { font-family: "Cascadia Code", ui-monospace, Menlo, monospace; background: var(--accent-soft); color: var(--head);
+    padding: .08em .4em; border-radius: 6px; font-size: .82em; }
+  pre { margin: 0; background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; padding: .8em 1em;
+    font: .6em/1.5 "Cascadia Code", ui-monospace, Menlo, monospace; color: var(--head); white-space: pre-wrap; }
+  .banner { width: 100%; max-height: 22vh; object-fit: cover; border-radius: 14px; border: 1px solid var(--line); image-rendering: pixelated; }
+  .thin { max-height: 13vh; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1em; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1em; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: .8em; }
+  .box { background: var(--bg2); border: 1px solid var(--line); border-radius: 14px; padding: .75em 1em; font-size: .7em; line-height: 1.4; transition: transform .15s; }
+  .box:hover { transform: translateY(-2px); }
+  .box b { display: block; color: var(--head); font-size: 1.1em; margin-bottom: .25em; }
+  .box i { color: var(--accent); font-style: normal; font-weight: 600; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 0 12px 12px 0; padding: .55em 1em; font-size: .76em; }
+  table { border-collapse: collapse; width: 100%; font-size: .68em; }
+  th, td { text-align: left; padding: .42em .8em; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--accent); font-weight: 600; }
+  .arch { display: grid; grid-template-columns: 6.5em 1fr; gap: .45em .8em; align-items: stretch; font-size: .9em; }
+  .arch .lbl { align-self: center; color: var(--accent); font-weight: 600; font-size: .62em; letter-spacing: .06em; text-transform: uppercase; line-height: 1.25; }
+  .arch .row { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: .6em; }
+  .arch .box { font-size: .58em; padding: .45em .7em; }
+  .arch .box b { margin-bottom: .1em; font-size: 1.05em; }
+  .arch .core { background: var(--accent-soft); border-color: var(--accent); }
+  .flow { display: flex; align-items: stretch; gap: .6em; }
+  .flow .box { flex: 1; } .flow .arrow { align-self: center; color: var(--accent); font-size: 1.2em; }
+  .stat { text-align: center; } .stat b { font-size: 2.1em; line-height: 1.1; margin: 0; }
+  .tl { display: grid; grid-template-columns: 6.5em 1fr; gap: .3em 1em; font-size: .72em; }
+  .tl span:nth-child(odd) { color: var(--accent); font-weight: 600; }
+  .big { font-size: 1.7em; line-height: 1; display: block; margin-bottom: .1em; }
+  .pill { display: inline-block; background: var(--accent-soft); border: 1px solid var(--line); border-radius: 999px; padding: .05em .7em; font-size: .6em; margin: 0 .4em .3em 0; color: var(--head); }
+  .ok { color: #3f9d6a; font-weight: 700; } .no { color: #cf5a5a; font-weight: 700; }
+  h2 .e { margin-right: .25em; }
+  /* Pictures and clips */
+  .media { display: block; max-width: 100%; object-fit: contain; background: var(--bg2); border-radius: 14px; border: 1px solid var(--line); box-shadow: 0 10px 30px #0006; }
+  .shot { height: 64vh; width: auto; align-self: center; aspect-ratio: 3 / 2; }
+  .shot.old { aspect-ratio: 1280 / 1056; }
+  .shot.wide { aspect-ratio: 1500 / 770; }
+  .split { display: grid; grid-template-columns: 1fr 1.35fr; gap: 1.2em; align-items: center; }
+  .split.rev { grid-template-columns: 1.35fr 1fr; }
+  .split .media { width: 100%; height: auto; aspect-ratio: 3 / 2; }
+  .split .media.old { aspect-ratio: 1280 / 1056; }
+  .split .side { display: grid; gap: .7em; align-content: center; }
+  .duo { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1em; }
+  .duo figure, .trio figure, .quad figure { margin: 0; text-align: center; font-size: .56em; color: var(--dim); }
+  .duo .media, .quad .media { width: 100%; height: auto; aspect-ratio: 3 / 2; }
+  .quad { display: grid; grid-template-columns: repeat(2, 1fr); gap: .7em 1em; }
+  .quad .media { max-height: 31vh; }
+  figcaption { margin-top: .3em; }
+  .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8em; }
+  .trio img { width: 100%; height: 10vh; object-fit: cover; border-radius: 12px; border: 1px solid var(--line); image-rendering: pixelated; }
+  .rotator { display: grid; grid-template-columns: 14em 1fr; gap: 1em; align-items: center; }
+  .rotator .tabs { display: grid; gap: .45em; }
+  .rotator .tabs button { font: inherit; font-size: .6em; text-align: left; padding: .55em .9em; border-radius: 12px; border: 1px solid var(--line); background: var(--bg2); color: var(--dim); cursor: pointer; }
+  .rotator .tabs button.cur { color: var(--head); border-color: var(--accent); background: var(--accent-soft); }
+  .rotator .stage { position: relative; justify-self: center; height: 68vh; aspect-ratio: 1280 / 1056; max-width: 100%; }
+  .rotator.many .tabs { gap: .22em; }
+  .rotator.many .tabs button { font-size: .5em; padding: .32em .7em; border-radius: 9px; }
+  .rotator video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: var(--bg2); border-radius: 14px; border: 1px solid var(--line); box-shadow: 0 10px 30px #0006; opacity: 0; transition: opacity .35s; pointer-events: none; }
+  .rotator video.cur { opacity: 1; }
+  .rotator.v2 .stage { aspect-ratio: 3 / 2; height: 64vh; }
+  /* Scrolling strip of banners */
+  .marquee { flex-shrink: 0; overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+  .marquee .track { display: flex; gap: .7em; width: max-content; animation: slide 70s linear infinite; }
+  .marquee.rev .track { animation-direction: reverse; animation-duration: 85s; }
+  .marquee img { height: 9vh; aspect-ratio: 6 / 1; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); image-rendering: pixelated; }
+  @keyframes slide { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .marquee .track { animation: none; } }
+  .notes { position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg2); border-top: 2px solid var(--accent); padding: .8em 7vw;
+    font-size: .6em; display: none; z-index: 5; color: var(--fg); }
+  .notes.show { display: block; }
+  .n { position: fixed; right: 2vw; bottom: 1.5vh; color: var(--dim); font-size: .5em; }
+  .bar { position: fixed; left: 0; top: 0; height: 4px; background: var(--accent); transition: width .2s; }
+  .nav { position: fixed; right: max(10px, env(safe-area-inset-right, 0px)); bottom: max(10px, env(safe-area-inset-bottom, 0px)); display: none; gap: 8px; z-index: 6; }
+  .nav button { font: 600 22px/1 inherit; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg2); color: var(--head); padding: 0; }
+  .nav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (max-width: 760px), (pointer: coarse) { .nav { display: flex; } }
+  @media (max-width: 760px) {
+    html, body { font-size: 15px; }
+    section { padding: 14px max(16px, env(safe-area-inset-right, 0px)) 80px max(16px, env(safe-area-inset-left, 0px)); justify-content: flex-start; overflow-y: auto; overflow-x: hidden; gap: 12px; -webkit-overflow-scrolling: touch; }
+    section > * { min-width: 0; max-width: 100%; flex-shrink: 0; }
+    h1 { font-size: 1.9em; } h2 { font-size: 1.3em; }
+    h1, h2, p, li, .box, figcaption { overflow-wrap: anywhere; }
+    .grid2, .grid3, .duo, .quad, .split, .split.rev { grid-template-columns: 1fr; }
+    .grid4 { grid-template-columns: repeat(2, 1fr); }
+    .arch { grid-template-columns: 1fr; } .arch .row { grid-auto-flow: row; } .arch .lbl { margin-top: .4em; }
+    .rotator { grid-template-columns: 1fr; } .rotator .tabs { grid-template-columns: repeat(2, 1fr); } .rotator .stage { height: auto; width: 100%; }
+    .flow { flex-direction: column; } .flow .arrow { transform: rotate(90deg); }
+    .banner { max-height: 16vh; } .trio img { height: 8vh; } .marquee img { height: 6vh; }
+    .shot { width: 100%; height: auto; }
+    table { display: block; overflow-x: auto; font-size: .8em; }
+    pre { overflow-x: auto; }
+    .tl { grid-template-columns: 5em 1fr; }
+    .notes { padding: .8em 16px 72px; max-height: 45vh; overflow: auto; font-size: .85em; }
+    .n { left: 16px; right: auto; bottom: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+
+<!-- 1 · title -->
+<section class="on" data-core data-notes="About 30 seconds. Welcome. This is the 20 minute version: press s, or add ?short to the address, to switch between the short cut and the full deck. One Obsidian vault plus Claude Code, and the system that grew around it, told from a platform engineer's side: EKS upgrades, Bottlerocket and Karpenter pins, a compliance boundary, PR reviews and standups. The aim is not to sell you Obsidian. It is to show the pattern, so you can copy one piece of it this week.">
+  <img class="banner" src="../../vault-template/Media/Banners/home.gif" alt="">
+  <h1>🗂️ Claude &amp; Obsidian 🤖</h1>
+  <h2 style="color: var(--accent); font-weight: 500; margin-top: .1em;">💘 a Match Made in Markdown</h2>
+  <p class="dim">How one notes vault and Claude Code became a working system for a platform engineer: capture, briefings, upgrades, a compliance boundary, and the daily loop</p>
+  <div class="marquee"><div class="track">
+    <img src="../../vault-template/Media/Banners/task-hub.gif" alt=""><img src="../../vault-template/Media/Banners/news-hub.gif" alt=""><img src="media/banners/compliance.gif" alt=""><img src="../../vault-template/Media/Banners/standup.gif" alt=""><img src="../../vault-template/Media/Banners/meeting-hub.gif" alt=""><img src="media/banners/claude-session-hub.gif" alt=""><img src="../../vault-template/Media/Banners/wiki-hub.gif" alt=""><img src="../../vault-template/Media/Banners/project-hub.gif" alt="">
+    <img src="../../vault-template/Media/Banners/task-hub.gif" alt=""><img src="../../vault-template/Media/Banners/news-hub.gif" alt=""><img src="media/banners/compliance.gif" alt=""><img src="../../vault-template/Media/Banners/standup.gif" alt=""><img src="../../vault-template/Media/Banners/meeting-hub.gif" alt=""><img src="media/banners/claude-session-hub.gif" alt=""><img src="../../vault-template/Media/Banners/wiki-hub.gif" alt=""><img src="../../vault-template/Media/Banners/project-hub.gif" alt="">
+  </div></div>
+  <p class="small"><span class="pill">🧠 Obsidian</span><span class="pill">⚡ Claude Code</span><span class="pill">☸️ Kubernetes</span><span class="pill">🛡️ Guardrails</span><span class="pill">🎨 Pixel banners</span></p>
+  <p class="dim small">Kyle McIntire · a team talk</p>
+  <p class="dim small">🔒 Recordings are from the author's real vault, pixelated for privacy.</p>
+</section>
+
+<!-- 2 · agenda -->
+<section data-core data-notes="About 30 seconds. Three parts. The pattern: records, views and templates, shown in the real vault. Our workday: the skills that carry a platform engineer's day, from the 06:00 news digest to the standup note, with one live briefing and the boundary rules. Then trust and a starter kit you can copy, including a template vault that is in the repo now.">
+  <h2><small>Agenda</small><span class="e">🧭</span>What we'll cover (about 20 minutes)</h2>
+  <div class="grid3">
+    <div class="box"><span class="big">🧩</span><b>1 · The pattern</b>The problem, the shape of the notes, and the live dashboards on top of them.</div>
+    <div class="box"><span class="big">☸️</span><b>2 · A platform engineer's day</b>News and pins at 06:00, the upgrade calendar, Jira, PRs, one live <code>work-on</code>, and the compliance boundary.</div>
+    <div class="box"><span class="big">🛡️</span><b>3 · Trust and start</b>Guardrails, checks, and a starter vault plus rules file you can copy this week.</div>
+  </div>
+  <div class="marquee rev"><div class="track">
+    <img src="../../vault-template/Media/Banners/Note Types/task-note.gif" alt=""><img src="../../vault-template/Media/Banners/Note Types/meeting-note.gif" alt=""><img src="../../vault-template/Media/Banners/Note Types/person-note.gif" alt=""><img src="../../vault-template/Media/Banners/Note Types/project-note.gif" alt=""><img src="../../vault-template/Media/Banners/Note Types/reference-note.gif" alt=""><img src="media/banners/ai-session-note.gif" alt=""><img src="../../vault-template/Media/Banners/Note Types/communication-note.gif" alt="">
+    <img src="../../vault-template/Media/Banners/Note Types/task-note.gif" alt=""><img src="../../vault-template/Media/Banners/Note Types/meeting-note.gif" alt=""><img src="../../vault-template/Media/Banners/Note Types/person-note.gif" alt=""><img src="../../vault-template/Media/Banners/Note Types/project-note.gif" alt=""><img src="../../vault-template/Media/Banners/Note Types/reference-note.gif" alt=""><img src="media/banners/ai-session-note.gif" alt=""><img src="../../vault-template/Media/Banners/Note Types/communication-note.gif" alt="">
+  </div></div>
+  <p class="callout">🎯 Takeaway to aim for: plain files, a rules file, one read-only skill. It works in any editor.</p>
+</section>
+
+<!-- 3 · problem -->
+<section data-core data-notes="About 1.5 minutes. Make it concrete for this room. One upgrade touches a Jira epic, three or four PRs across a utilities repo and the infra repos, a Confluence maintenance calendar, Slack announce channels, and for the regulated environment a GitLab MR inside a compliance boundary that none of us can see from the laptop. Restarting that after two days of interrupts means a tour of all of it. The second problem: release notes for EKS, Karpenter, Flux, Argo CD and Bottlerocket arrive faster than anyone reads them, and the question is always whether they touch something we pin.">
+  <h2><small>Why</small><span class="e">😵‍💫</span>The platform team problem</h2>
+  <div class="grid2">
+    <div class="box"><b>🧩 One task, six tools</b>A Jira epic, PRs in a utilities repo and the infra repos, the ops team's maintenance calendar, Slack threads, mail and a boundary GitLab MR. Restarting means touring all of them.</div>
+    <div class="box"><b>📰 Release firehose</b>EKS, Karpenter, Flux, Argo CD, Bottlerocket and Chainguard all ship weekly. The real question: does it touch a version <i>we pin</i>?</div>
+    <div class="box"><b>🔁 Repeated rituals</b>Standup notes, end-of-day Jira comments, PR announcement emoji, the Friday status update. Same steps every time.</div>
+    <div class="box"><b>🔒 Boundaries</b>The compliance boundary is unreachable from the laptop, CVE IDs must not leak into chat, and an agent that can write anywhere is hard to trust.</div>
+  </div>
+  <p class="callout">🎯 Goal: capture in seconds, restart a ticket in one command, never miss a pinned-version change, and never be surprised by what Claude changed.</p>
+</section>
+
+<!-- 4 · scale -->
+<section data-notes="Full deck only. The numbers come from the vault itself: Home's live stats panel counts the notes, git counts the commits, and the skills folder has twenty skills, which this repo ships in generalised form, plus two hobby ones on my PC. Five things run on a schedule without me. It grew one annoyance at a time.">
+  <h2><small>Scale</small><span class="e">📊</span>What exists today</h2>
+  <div class="grid4">
+    <div class="box stat"><span class="big">🧰</span><b>20+</b>Claude Code skills in a plugin the vault publishes itself</div>
+    <div class="box stat"><span class="big">📝</span><b>2,400+</b>notes, counted live on the Home dashboard</div>
+    <div class="box stat"><span class="big">🌳</span><b>1,700+</b>git commits as a backup trail</div>
+    <div class="box stat"><span class="big">⏰</span><b>5</b>schedules: news 06:00, upgrade calendar 06:30, preferences 18:45, Friday status, importer every 5 min</div>
+  </div>
+  <div class="duo" style="align-items: center">
+    <figure><img class="media" style="max-height: 40vh" src="media/screens/v2-vault-stats.png" alt="Home vault stats panel"><figcaption>📊 Home's live stats panel</figcaption></figure>
+    <figure><video class="media" style="max-height: 40vh; aspect-ratio: 2040 / 2145" data-clip data-src="media/clips/v2-graph-animate.mp4" muted loop playsinline preload="auto"></video><figcaption>🕸️ Obsidian's graph view replaying the vault growing, sped up</figcaption></figure>
+  </div>
+</section>
+
+<!-- 5 · architecture -->
+<section data-core data-notes="About 1.5 minutes. Bottom to top. The vault: plain Markdown folders by area, Templates as the schema, Media for banners and imported chats, Local for machine-only files. Obsidian Sync carries notes between my Mac and PC; git is the backup and the only carrier for hidden folders like the skills plugin. Access: the filesystem, the Obsidian MCP and CLI, and read-only connectors to Jira and Confluence through the Atlassian MCP, Slack, GitHub through gh, Outlook from the Mac's local copy, and Backstage for ownership. Logic: one rules file, the skills plugin, and Python scripts. Top: me, plus launchd jobs and Claude app schedules. Only the Logic row is mine; everything else is off the shelf.">
+  <h2><small>Architecture</small><span class="e">🏗️</span>The vault at a glance</h2>
+  <div class="arch">
+    <div class="lbl">⏰ Runs it</div>
+    <div class="row">
+      <div class="box"><b>🧠 Obsidian</b>Editing, hubs, Bases, live chart dashboards</div>
+      <div class="box"><b>⚡ Claude Code</b>Skills run as <code>/vault-skills:name</code></div>
+      <div class="box"><b>⏱️ launchd + Claude app</b>News 06:00 · calendar 06:30 · preferences 18:45 · Friday status · importer every 5 min</div>
+    </div>
+    <div class="lbl">🧩 Logic</div>
+    <div class="row">
+      <div class="box core"><b>📜 Rules</b><code>CLAUDE.md</code>, plus nested ones for sensitive folders</div>
+      <div class="box core"><b>🧰 Skills plugin</b>20 skills, published as the <code>vault-skills</code> plugin</div>
+      <div class="box core"><b>🐍 Scripts</b>Importers, checker, link tools, calendar sync, banner engine</div>
+    </div>
+    <div class="lbl">🔌 Access</div>
+    <div class="row">
+      <div class="box"><b>📁 Filesystem + git</b>Bulk edits, hidden folders, history</div>
+      <div class="box"><b>🔗 Obsidian MCP / CLI</b>Search, patch, move with links kept</div>
+      <div class="box"><b>🌐 Work systems</b>Jira · Confluence · Slack · GitHub · Outlook · Backstage, read-only by default</div>
+    </div>
+    <div class="lbl">📚 Vault</div>
+    <div class="row">
+      <div class="box"><b>🗒️ Notes by area</b><code>Daily Note/</code> · <code>Work/</code> · <code>Projects/</code> · <code>Personal/</code> · <code>Wiki/</code></div>
+      <div class="box"><b>📐 Structure</b><code>Templates/</code> (schema + chart views) · <code>Media/</code> · <code>Archive/</code> · <code>Local/</code></div>
+    </div>
+    <div class="lbl">🔄 Carriers</div>
+    <div class="row">
+      <div class="box"><b>☁️ Obsidian Sync</b>Notes, attachments, settings between Mac and PC</div>
+      <div class="box"><b>🌳 Git to GitHub</b>Backup, plus hidden folders like <code>.plugins/</code></div>
+    </div>
+  </div>
+  <p class="callout">🎯 Only the Logic row is hand-built. Start with just the rules file.</p>
+</section>
+
+<!-- 6 · records views templates -->
+<section data-notes="Full deck only, about 1 minute. A Jira task, a standup, a person, a project: each is one note with properties. Views read those properties, they never copy them. Templates are the schema; there is no validator because everything starts from one. Property values are functional, so the status emoji must match the Base filter character for character.">
+  <h2><small>The shape</small><span class="e">🏗️</span>Records, views, templates</h2>
+  <div class="flow">
+    <div class="box"><b>📐 Template</b>Defines what a Jira task, standup, meeting or project note looks like.</div>
+    <span class="arrow">→</span>
+    <div class="box"><b>📄 Record</b>One note per real thing, with properties: <code>type</code>, <code>status</code>, <code>url</code>, <code>summary</code>.</div>
+    <span class="arrow">→</span>
+    <div class="box"><b>🪟 View</b>Hubs, Bases and chart dashboards read the properties. Change one value, every view updates.</div>
+  </div>
+  <div class="trio">
+    <figure><img src="../../vault-template/Media/Banners/Note Types/task-note.gif" alt="">✅ Jira task</figure>
+    <figure><img src="../../vault-template/Media/Banners/Note Types/meeting-note.gif" alt="">🗓️ meeting and standup</figure>
+    <figure><img src="../../vault-template/Media/Banners/Note Types/project-note.gif" alt="">📁 project</figure>
+  </div>
+  <ul class="small">
+    <li>Plain Markdown, so Claude, <code>grep</code>, scripts and git all read it; links connect notes, folders only give a rough home</li>
+    <li>Values are functional: <code>🟢 Active</code> must match the Base filter exactly</li>
+    <li>History is kept: dated changelogs, one standup note per day, frozen archives instead of deletions</li>
+  </ul>
+</section>
+
+<!-- 7 · home -->
+<section data-core data-notes="About 1 minute. The real vault, not a mock-up, recorded this week. Home is the command centre: a date line with links to today's note, standup, journal and the vault map, then a gallery of every hub, each with its own pixel banner. Everything on it is a view over notes; nothing is copied. Silent, so talk over it.">
+  <h2><small>The real thing</small><span class="e">🏠</span>Home: the command centre</h2>
+  <video class="media shot" data-clip data-src="media/clips/v2-home-hubs.mp4" muted loop playsinline preload="auto"></video>
+  <p class="dim small">Recorded from the live vault. The hub gallery is a Base over every <code>type: Hub</code> note.</p>
+</section>
+
+<!-- 8 · dashboards -->
+<section data-core data-notes="About 1 minute. New since the last version of this talk: every hub has a live chart dashboard. One shared toolkit in Templates/Views/hub-charts draws them with Dataview JS and inline SVG, so there is no new plugin and they work on the Mac, the PC and the phone. Hover for numbers, click a bar or a day to open the note behind it. Left, the project dashboard; right, the game library, because the same toolkit works for anything with properties. Bottom line: once your notes have properties, a dashboard is one small script.">
+  <h2><small>New</small><span class="e">📈</span>Every hub has a live dashboard</h2>
+  <div class="duo">
+    <figure><video class="media" data-clip data-src="media/clips/v2-project-dash.mp4" muted loop playsinline preload="auto"></video><figcaption>📁 Project Hub: open tasks, status, days since review</figcaption></figure>
+    <figure><video class="media" data-clip data-src="media/clips/v2-games-dash.mp4" muted loop playsinline preload="auto"></video><figcaption>🎮 Games Hub: the same toolkit on a game library</figcaption></figure>
+  </div>
+  <p class="callout">📦 One toolkit, <code>Templates/Views/hub-charts/</code>: Dataview JS + inline SVG. No new plugin, hover for numbers, click to open the note.</p>
+</section>
+
+<!-- 9 · work hubs -->
+<section data-core data-notes="About 1 minute. The work side, each with its live dashboard. Work Tasks is one note per Jira issue, synced one way from Jira: in progress, story points, subtasks done per week, a completion calendar. The work Claude Session hub charts cost, activity and tool calls across every Claude Code session from the work laptop. The Meeting hub charts time in meetings and what I'm waiting on. The Work hub ties it together with teammates, meetings and recent activity. News holds the 06:00 digests, and the work wiki is the team reference. Each clip plays through, then the next one starts; click a name to jump.">
+  <h2><small>The real thing</small><span class="e">💼</span>The work hubs and their dashboards</h2>
+  <div class="rotator v2">
+    <div class="tabs">
+      <button type="button" class="cur">✅ Work tasks (one note per Jira issue)</button>
+      <button type="button">🤖 Work Claude sessions</button>
+      <button type="button">🗓️ Meetings</button>
+      <button type="button">💼 Work hub</button>
+      <button type="button">📰 News (06:00 digests)</button>
+      <button type="button">📖 Work wiki</button>
+    </div>
+    <div class="stage">
+      <video data-rot class="cur" data-src="media/clips/v2-hub-tasks.mp4" muted playsinline preload="auto"></video>
+      <video data-rot data-src="media/clips/v2-hub-work-sessions.mp4" muted playsinline preload="auto"></video>
+      <video data-rot data-src="media/clips/v2-hub-meetings.mp4" muted playsinline preload="metadata"></video>
+      <video data-rot data-src="media/clips/v2-hub-work.mp4" muted playsinline preload="metadata"></video>
+      <video data-rot data-src="media/clips/v2-hub-news.mp4" muted playsinline preload="metadata"></video>
+      <video data-rot data-src="media/clips/v2-hub-work-wiki.mp4" muted playsinline preload="metadata"></video>
+    </div>
+  </div>
+</section>
+
+<!-- 10 · two clicks -->
+<section data-notes="Full deck only. Home, click the Work Tasks card, the Task Hub opens on its dashboard, scroll to In flight, click a ticket that is in flight, and its task note opens: the Jira description, acceptance criteria, and the dated work log. Two clicks from anywhere to where I left off. Silent.">
+  <h2><small>In use</small><span class="e">🎬</span>Home to a Jira task, in two clicks</h2>
+  <video class="media shot" data-clip data-src="media/clips/v2-home-to-task.mp4" muted loop playsinline preload="auto"></video>
+</section>
+
+<!-- 11 · the day -->
+<section data-core data-notes="About 1.5 minutes. The day, as it actually runs. Two jobs fire before I sit down: the news digest at 06:00 and the maintenance calendar at 06:30. start-of-day checks last night's plan against what happened overnight. work-on restarts a ticket. Meetings I record become notes. end-of-day drafts the Jira comments and PR replies, posts only what I pick, marks merged PR announcements, and writes tomorrow's standup note. At 18:45 a job learns how I like things done. Friday at 16:00 drafts the weekly status. The next slides open the platform-specific ones.">
+  <h2><small>Rhythm</small><span class="e">🔄</span>A platform engineer's day</h2>
+  <img class="banner thin" src="../../vault-template/Media/Banners/standup.gif" alt="">
+  <div class="tl">
+    <span>🌅 06:00</span><span>📰 <code>get-news</code> runs headless: EKS, Karpenter, Flux, Argo CD, Bottlerocket, Chainguard, checked against our pins</span>
+    <span>🗓️ 06:30</span><span>☸️ The ops team's maintenance calendar (EKS upgrades, AMI patching) syncs into the work wiki</span>
+    <span>☕ Morning</span><span>🧭 <code>start-of-day</code>: last night's plan versus Slack, mail, Jira and PRs; writes today's standup on approval</span>
+    <span>🧑‍💻 All day</span><span>⚡ <code>work-on</code> restarts a ticket · 🎙️ recorded meetings become notes · sessions import every 5 min</span>
+    <span>🌙 Wrap-up</span><span>📝 <code>end-of-day</code>: drafts Jira comments and PR replies, posts only what I pick, adds <code>:merged2:</code> / <code>:gitlab:</code>, writes tomorrow's standup</span>
+    <span>🌆 18:45</span><span>🧠 <code>learn-preferences</code> reads my own messages and proposes how I like work done</span>
+    <span>📅 Fri 16:00</span><span>📊 Weekly status draft: Shipped / In progress / Blockers, written nowhere but chat</span>
+  </div>
+</section>
+
+<!-- 12 · get-news -->
+<section data-core data-notes="About 1.5 minutes. The one most of you would want. A stdlib script reads 29 feeds in parallel: AWS What's New, the EKS doc history, the Kubernetes blog, and release feeds for Kubernetes, Flux, Flux Operator, Argo CD, Karpenter and Bottlerocket, plus Chainguard. Then it reads the versions we actually pin from the local clones: the Karpenter chart in the Flux add-ons repo, the Bottlerocket AMI per environment from a versions file, and the Argo CD versions in the Argo CD charts. Each release gets a note: newer patch of a pin, newer minor, or unrelated. The skill reads six announce channels, ranks security first, and writes a digest note. Read-only outside the vault; a failed source is listed under Gaps. The clip is its tracking note.">
+  <h2><small>Platform</small><span class="e">📰</span><code>get-news</code>: releases, checked against our pins</h2>
+  <div class="split">
+    <div class="side">
+      <div class="box"><b>📡 29 feeds</b>AWS What's New, EKS doc history, Kubernetes, Flux, Flux Operator, Argo CD, Karpenter, Bottlerocket, Chainguard.</div>
+      <div class="box"><b>📌 Our pins</b>Karpenter from the Flux add-ons repo, Bottlerocket AMIs from a per-environment versions file, Argo CD from its chart repo.</div>
+      <div class="box"><b>💬 Six announce channels</b>Platform, SRE and release announcement channels, and more.</div>
+      <div class="box"><b>⚖️ Ranked</b>🚨 Security first, then anything we run or pin, then compliance scope. Gaps listed, never "nothing new".</div>
+    </div>
+    <video class="media" data-clip data-src="media/clips/v2-get-news.mp4" muted loop playsinline preload="auto"></video>
+  </div>
+</section>
+
+<!-- 13 · cloud calendar -->
+<section data-notes="Full deck only, about 1 minute. The company's cloud maintenance calendar lives in Confluence and its iCal feed wants a login, so macOS Calendar can't subscribe. A daily script pulls the authenticated export, parses the events, and keeps the ones whose titles match EKS, AMI, Karpenter, Bottlerocket, cluster, nodepool or GovCloud as my team's; everything else goes in a context section. It rewrites only the block between its markers, previews unless given --write, and has tests. Now upgrade windows are searchable next to the tickets.">
+  <h2><small>Platform</small><span class="e">🗓️</span>The upgrade calendar, in the vault</h2>
+  <div class="split rev">
+    <img class="media" src="media/screens/v2-cloud-calendar.png" alt="Cloud Maintenance Calendar Sync tracking note">
+    <div class="side">
+      <div class="box"><b>🔐 Confluence export</b>The ops calendar's authenticated <code>.ics</code> export, read with the Jira token. No subscribe link needed.</div>
+      <div class="box"><b>☸️ Team filter</b><code>eks|ami|karpenter|bottlerocket|cluster|nodepool|govcloud</code>; the rest becomes context.</div>
+      <div class="box"><b>🚧 Fenced output</b>Rewrites only between its markers in the work wiki note. Preview unless <code>--write</code>; tested.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 · jira sync + start of day -->
+<section data-notes="Full deck only, about 1 minute. Two morning pieces. The Jira sync is one way: Jira into the Tasks folder, matched by the url property, never by filename. It fixes status folders and copies new comments in as work-log entries, tracked by a watermark note with a forceKeys escape hatch. start-of-day then checks the plan end-of-day left in the standup note against overnight changes: each Today item is marked done, unblocked, worse or unchanged, with evidence. The only write is today's standup note, after I approve the diff.">
+  <h2><small>Morning</small><span class="e">🧭</span>Jira sync and <code>start-of-day</code></h2>
+  <div class="grid2">
+    <div class="box"><b>🎫 <code>jira-to-obsidian-sync</code></b>One way, Jira into <code>Tasks/</code>. Matched by <code>url</code>, not filename. Status folders fixed, new comments become dated work-log entries. A watermark note plus <code>forceKeys</code> for stragglers. <span class="no">Never writes to Jira.</span></div>
+    <div class="box"><b>🧭 <code>start-of-day</code></b>Reads PRs, review requests, Jira, today's meetings, unread mail, Slack mentions and DMs. Marks each planned item ✅ done, 🔓 unblocked, 📉 worse, or unchanged, with the evidence. Writes today's standup only on approval, then offers <code>work-on</code> for item one.</div>
+  </div>
+  <div class="trio">
+    <figure><img src="../../vault-template/Media/Banners/task-hub.gif" alt="">✅ Work tasks</figure>
+    <figure><img src="../../vault-template/Media/Banners/standup.gif" alt="">🤝 One standup note per day</figure>
+    <figure><img src="../../vault-template/Media/Banners/Note Types/task-note.gif" alt="">📄 Task note with work log</figure>
+  </div>
+</section>
+
+<!-- 15 · work-on demo -->
+<section data-core data-notes="About 3 minutes, live. Run it on a real ticket picked the day before, on the work laptop. Walk the briefing top to bottom: the task, where it stands, the PR table, Do next with runnable commands, open questions, gaps. Stress that it reads from many places and writes to none of them. If it creates a task note because none existed, point out that it runs the Jira sync rather than inventing one. If the network misbehaves, the next slide is a recording.">
+  <h2><small>Live demo</small><span class="e">⚡</span>A briefing in one command</h2>
+  <pre style="font-size: .9em">/vault-skills:work-on &lt;JIRA-KEY&gt;</pre>
+  <div class="split">
+    <div class="side">
+      <div class="box"><b>👀 Reads</b>Task note, Jira (description, comments, children, links), GitHub PRs and checks, local branches and stashes, Slack, Confluence, Backstage ownership, standups.</div>
+      <div class="box"><b>📋 Produces</b>Where it stands, a PR table, ordered next steps with runnable commands, open questions, gaps.</div>
+      <div class="box"><b>🚫 Never does</b>Comment on Jira, post to Slack, edit a PR, or check out a branch.</div>
+    </div>
+    <video class="media" data-clip data-src="media/clips/v2-work-on.mp4" muted loop playsinline preload="auto"></video>
+  </div>
+</section>
+
+<!-- 16 · work-on recording -->
+<section data-notes="Backup for the live demo. A silent recording of the real Claude CLI running work-on on this talk's own project note. Waiting stretches are sped up 8x, so it runs about 35 seconds. Narrate: the command, the gatherer script, then the briefing.">
+  <h2><small>Live demo</small><span class="e">⏯️</span>The briefing, running in the terminal</h2>
+  <video class="media shot wide" data-clip data-src="media/clips/claude-cli-demo-v2.mp4" muted loop playsinline preload="auto"></video>
+  <p class="dim small">Silent recording of <code>/vault-skills:work-on</code> on a project note. Waiting time sped up 8x.</p>
+</section>
+
+<!-- 17 · trust the briefing -->
+<section data-notes="Full deck only, about 1 minute. What makes the briefing worth trusting, and these are things we have all been bitten by. A green review check can mean the review job was skipped after a push, so it lists the commits no reviewer has seen. If a force-push rewrote the reviewed commit, it diffs the two and says whether the reviewed code survived or new code appeared. Failing checks are quoted with the SonarQube rule, file and line, not 'a check is failing'. Pinned image tags are compared with the newest tags in the registry. And every command is marked as not run.">
+  <h2><small>Live demo</small><span class="e">🔍</span>Why the briefing can be trusted</h2>
+  <div class="grid3">
+    <div class="box"><span class="big">👓</span><b>Review coverage</b>Lists commits no reviewer has seen. A few-second review check means the job was skipped, not that the code was read.</div>
+    <div class="box"><span class="big">🔀</span><b>Force-push aware</b>If the reviewed commit was rewritten, it diffs old and new: dropped files only, or new code nobody read?</div>
+    <div class="box"><span class="big">🧪</span><b>Specific failures</b>The SonarQube rule, file and line from the check annotations, or the failed log. Never just "a check is red".</div>
+    <div class="box"><span class="big">📌</span><b>Stale pins</b>Pinned image tags are compared with the newest in the registry, flagging end-of-life streams.</div>
+    <div class="box"><span class="big">🏷️</span><b>Facts vs guesses</b>Recorded facts, inferences and proposals are labelled. A failed source says "failed", not "nothing found".</div>
+    <div class="box"><span class="big">🧾</span><b>Commands not run</b>One command per block, in order, with what a pass looks like, and a plain "I did not run these".</div>
+  </div>
+</section>
+
+<!-- 18 · boundary -->
+<section data-core data-notes="About 1.5 minutes. The part that is specific to us. Anything inside the compliance boundary, its container registry, its clusters, its GitLab pipelines, is unreachable from the Mac, and the rules file says so. So Claude never tries. It writes the exact commands for the boundary's remote workspace, bundled into one paste with labelled echo lines, and splits out only the steps that need a decision or change something. It also checks the code is on a branch the boundary mirror syncs before proposing a step there. In anything that leaves the vault, CVEs for boundary images are labels like CVE-HIGH-1 with severity, package and fixed version, never the ID. And look-alike environments are not interchangeable: two regulated offerings share a cloud partition and similar cluster names, so when a task needs one, Claude never uses the other as a stand-in.">
+  <h2><small>Platform</small><span class="e">🛡️</span>The compliance boundary is a rule, not a hope</h2>
+  <img class="banner thin" src="media/banners/compliance.gif" alt="">
+  <div class="grid2">
+    <div class="box"><b>🚫 Never reached from the laptop</b>The boundary's registry, clusters, GitLab pipelines and MRs. The rules file names them, so no session tries.</div>
+    <div class="box"><b>📋 One paste for the Workspace</b>Exact commands for the boundary's remote workspace, chained with labelled <code>echo</code> lines. Only decision or change steps are split out.</div>
+    <div class="box"><b>🏷️ CVE labels outside the vault</b>Drafts say <code>CVE-HIGH-1</code> with severity, package and fixed version, never the CVE or GHSA ID.</div>
+    <div class="box"><b>☁️ Look-alikes aren't swaps</b>Two regulated offerings share a cloud partition; one never stands in for the other. Mirror branches are checked before a boundary step.</div>
+  </div>
+</section>
+
+<!-- 19 · end of day -->
+<section data-notes="Full deck only, about 1.5 minutes. end-of-day is manual only, by design, because it can post. It gathers the day read-only, finds stale PR descriptions, unanswered review threads and Jira issues with progress but no comment, and shows each draft with its reason. It posts only what I pick and never resolves a thread. Then pr-reactions marks my own announcements in the team's PR announcement channel: merged2 once a PR merges, and gitlab only when the change is known to be in the boundary. A utilities repo counts as soon as it merges because the boundary mirror tracks main; an image-sync repo only after its boundary branch is promoted; the infra repo needs its follow-up GitLab MR. Standups are now one note per day, and the 122 old entries were converted.">
+  <h2><small>Wrap-up</small><span class="e">🌙</span><code>end-of-day</code>, PR emoji and the standup note</h2>
+  <div class="flow">
+    <div class="box"><b>1 · 📥 Gather</b>Read-only: the day's PRs, pushes, Jira changes, task notes, sessions and calendar.</div>
+    <span class="arrow">→</span>
+    <div class="box"><b>2 · 🙋 Ask</b>Each draft comment or PR reply with its reason. Posts only what I pick; never resolves threads.</div>
+    <span class="arrow">→</span>
+    <div class="box"><b>3 · 🔀 React</b><code>pr-reactions</code>: <code>:merged2:</code> on merge, <code>:gitlab:</code> only when the change is in the boundary.</div>
+    <span class="arrow">→</span>
+    <div class="box"><b>4 · 🤝 Standup</b>Tomorrow's <code>YYYY-MM-DD Standup</code> note: TLDR, Yesterday by issue, Today, Blockers.</div>
+  </div>
+  <table>
+    <tr><th>Repo</th><th>When it earns <code>:gitlab:</code></th></tr>
+    <tr><td>Utilities repo</td><td>As soon as it merges (the boundary mirror tracks <code>main</code>)</td></tr>
+    <tr><td>Image-sync repo</td><td>After its boundary branch is promoted</td></tr>
+    <tr><td>Boundary infra repo</td><td>After its follow-up GitLab MR merges</td></tr>
+  </table>
+</section>
+
+<!-- 20 · meetings + new skills -->
+<section data-notes="Full deck only, about 1.5 minutes. Three newer skills. Meeting recordings, standups included, become notes: transcription with whisper and speaker identification run locally on the Mac, or on the PC's GPU, names are confirmed with me, and only my own action items become tasks. learn-preferences runs at 18:45 and reads my own Slack channel messages, Jira comments, PR reviews, sent mail and Claude prompts, delta-only, and proposes how I like things done, with confidence computed from evidence. It skips DMs, HR, health and money, and a contradiction goes to a Conflicts list rather than overwriting. draft-in-voice then drafts Slack in my style. mermaid-image renders Mermaid to a themed PNG locally, because Slack and Jira don't render Mermaid, for things like the boundary Argo CD sync order.">
+  <h2><small>New</small><span class="e">🆕</span>Meetings, preferences and diagrams</h2>
+  <div class="grid3">
+    <div class="box"><span class="big">🎙️</span><b><code>meeting-recording-notes</code></b>Local whisper transcription and voice matching, names confirmed with me, timestamp links, and only <i>my</i> action items as tasks.</div>
+    <div class="box"><span class="big">🧠</span><b><code>learn-preferences</code></b>Daily at 18:45 from my own Slack, Jira, PR, mail and Claude messages. Confidence from evidence; conflicts never overwrite; DMs, HR and health skipped.</div>
+    <div class="box"><span class="big">🧜</span><b><code>mermaid-image</code></b>Mermaid to a themed PNG and SVG, locally, for Slack, Jira and PRs that don't render it, such as a boundary Argo CD sync order.</div>
+  </div>
+  <div class="trio">
+    <figure><img src="media/banners/meeting-recording-notes.gif" alt="">🎙️ recordings in</figure>
+    <figure><img src="../../vault-template/Media/Banners/meeting-hub.gif" alt="">🗓️ meeting notes out</figure>
+    <figure><img src="media/banners/claude-session-hub.gif" alt="">🤖 sessions remembered</figure>
+  </div>
+</section>
+
+<!-- 20a · learn-preferences pipeline -->
+<section data-notes="Full deck only, about 1.5 minutes. The deep dive on learn-preferences. Every evening at 18:45 a launchd job runs it headless. A stdlib script collects only what I wrote since the last run, per source: my messages to Claude Code, my PR descriptions, reviews and review comments, my Jira comments and tickets, sent mail, and Slack channel messages, which the skill fetches through the Slack connector and hands to the script. It drops acknowledgements and pasted logs, redacts secrets, and caps each source at 120 items so a backlog drains over a few runs. Then the model judges: only durable, generalisable statements about how I want work done survive; one-offs, other people's preferences and anything about HR, health or money are dropped. The merge is anchored edits into a profile note. And the watermarks only move after the edits succeed, so a run that dies loses nothing: the same items come back tomorrow.">
+  <h2><small>Deep dive</small><span class="e">🧠</span><code>learn-preferences</code>: how it learns</h2>
+  <div class="split">
+    <div class="side">
+      <div class="box"><b>1 · 📥 Collect (script)</b>Only the delta since each source's watermark. Claude prompts, PRs and reviews, Jira comments, sent mail, Slack channels (no DMs). Secrets redacted, 120 items per source per run.</div>
+      <div class="box"><b>2 · ⚖️ Judge (model)</b>Keep durable, general rules ("don't mock the DB"); drop one-offs, other people's preferences, and HR, health or money.</div>
+      <div class="box"><b>3 · ✍️ Merge (anchored edits)</b>A match bumps its evidence; a new rule enters as <code>low</code>; a contradiction goes to <b style="display:inline">Conflicts</b> and never overwrites.</div>
+      <div class="box"><b>4 · 🔐 Commit</b>Watermarks move only after the edits land. A crashed run loses nothing; the items come back next time.</div>
+    </div>
+    <video class="media" data-clip data-src="media/clips/v2-learned-prefs.mp4" muted loop playsinline preload="auto"></video>
+  </div>
+  <p class="callout">🌆 Daily at 18:45 from launchd: headless <code>claude -p</code>, Sonnet at medium effort, a tool allowlist, no session saved. <code>dry-run</code> previews without writing.</p>
+</section>
+
+<!-- 20b · learn-preferences confidence -->
+<section data-notes="Full deck only, about 1 minute. The part I like most: confidence is computed from evidence, never from how strongly something was worded. One sighting is low. Sightings on two different days make it medium. Three days and at least two different sources make it high. Rows not seen for 90 days fade; rows I reject are never re-added. High rows that Claude's memory doesn't already have become promotion candidates, and they only go into memory when I say yes in a live session. These three rows are real ones from my profile, which after two runs held 26 preferences from 394 items.">
+  <h2><small>Deep dive</small><span class="e">📏</span>Confidence comes from evidence, not wording</h2>
+  <div class="grid3">
+    <div class="box stat"><span class="big">🌱</span><b>low</b>One sighting, and only if it is clearly a stated rule</div>
+    <div class="box stat"><span class="big">🌿</span><b>medium</b>Seen on two or more different days</div>
+    <div class="box stat"><span class="big">🌳</span><b>high</b>Three or more days and at least two sources</div>
+  </div>
+  <table>
+    <tr><th>Real rows from my profile</th><th>Confidence</th><th>Evidence</th></tr>
+    <tr><td>Announce PRs and MRs in Slack as the team group mention plus a bullet list of links, with <code>:gitlab:</code> marking the boundary GitLab MR</td><td>medium</td><td>3 · Slack, Claude sessions</td></tr>
+    <tr><td>Have Claude draft the Slack message for me to post, rather than posting it</td><td>medium</td><td>8 · Claude sessions</td></tr>
+    <tr><td>When I can't approve an MR because my commit is in it, say so and ask for a reviewer with no commits in it</td><td>low</td><td>2 · Slack</td></tr>
+  </table>
+  <p class="callout">🗂️ After two runs: 394 items read, 26 preferences. Unseen for 90 days → <b style="display:inline">Faded</b>; rejected → never re-added; promotion to Claude's memory only on my yes.</p>
+</section>
+
+<!-- 20c · voice and style -->
+<section data-notes="Full deck only, about 1 minute. The same script also measures how I write, before anything is truncated: length, bullets, bold, code, links, mentions, questions, thanks, punctuation and emoji. Only Slack and mail count as my natural voice, because text under my name on GitHub and Jira is often drafted by Claude, which would teach it to sound like itself. The Voice and Style note keeps measured numbers apart from inferred traits, a handful of verbatim exemplars, and patterns by message type, like a PR announcement being just the mention and the URL. draft-in-voice reads that note to draft Slack messages that sound like me, and I still post them myself.">
+  <h2><small>Deep dive</small><span class="e">🗣️</span>Voice and Style: how I actually write</h2>
+  <div class="split rev">
+    <video class="media" data-clip data-src="media/clips/v2-voice.mp4" muted loop playsinline preload="auto"></video>
+    <div class="side">
+      <table>
+        <tr><th>Measured (100 Slack messages)</th><th></th></tr>
+        <tr><td>Length</td><td>~25 words, mostly one line</td></tr>
+        <tr><td>Contains an emoji</td><td>58%, all workspace <code>:shortcodes:</code></td></tr>
+        <tr><td>Ends with a period</td><td>12%</td></tr>
+        <tr><td>Questions · thanks</td><td>11% · 12%</td></tr>
+        <tr><td>Links</td><td>0.6 per message</td></tr>
+      </table>
+      <div class="box"><b>🎙️ Natural voice only</b>Slack and mail count; GitHub and Jira text under my login is often Claude-drafted, so it is recorded but not learned from.</div>
+      <div class="box"><b>✍️ <code>draft-in-voice</code></b>Drafts Slack in my style from this note. It never posts.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 21 · automations hub -->
+<section data-notes="Full deck only, about 1 minute. Every skill and scheduled job has a tracking note: status, summary, what runs it and when, source files, verification, and a dated changelog. This hub is a Base over those notes, grouped by workstream, with a Needs attention view for recorded follow-ups. When I change a skill, its note changes in the same session.">
+  <h2><small>Self-documenting</small><span class="e">📒</span>Every automation has a tracking note</h2>
+  <video class="media shot" data-clip data-src="media/clips/v2-automations.mp4" muted loop playsinline preload="auto"></video>
+  <p class="dim small">The Vault and Work Automations hub: a Base over one note per skill or job, with what runs it and when.</p>
+</section>
+
+<!-- 22 · guardrails -->
+<section data-core data-notes="About 1.5 minutes, spend time here. The rules live in a file Claude reads at the start of every session, including scheduled and background ones. Preview-first scripts mean writing is opt-in. Every outward action, a Jira comment, a Slack post, a commit, needs me to pick it. Scheduled jobs run headless with a narrow tool allowlist. Mail and calendar are read-only and Claude drafts a mailto link instead of sending. Work notes stay with the work account on the work laptop.">
+  <h2><small>Trust</small><span class="e">🛡️</span>Guardrails are the design</h2>
+  <table>
+    <tr><th>✅ Claude can, by default</th><th>🛑 Needs explicit approval</th></tr>
+    <tr><td>📖 Read, search and summarise the vault, Jira, PRs, Slack</td><td>📤 Stage, commit, push, move, rename or delete</td></tr>
+    <tr><td>👁️ Preview a script (<code>--write</code> is opt-in)</td><td>✍️ Run it with <code>--write</code> on bulk edits</td></tr>
+    <tr><td>📝 Draft a Jira comment, PR reply or Slack message</td><td>📣 Post it, transition a ticket, or resolve a thread</td></tr>
+    <tr><td>📬 Read mail and calendar, draft a <code>mailto:</code></td><td>✉️ Send, reply, or answer an invite (never)</td></tr>
+    <tr><td>📋 Write commands for the boundary workspace</td><td>🔐 Reach into the boundary (never from the laptop)</td></tr>
+    <tr><td>🧪 Run <code>make check</code> and tests (read-only)</td><td>🗝️ Touch <code>.obsidian/</code> settings or secrets</td></tr>
+  </table>
+  <p class="callout">📜 Rules live in <code>CLAUDE.md</code>, so every session starts with them. Scheduled jobs run headless with a narrow tool allowlist.</p>
+</section>
+
+<!-- 23 · checks and links -->
+<section data-notes="Full deck only, about 1 minute. Verification is boring and important. The checker is read-only: invalid UTF-8, unclosed frontmatter and code fences, unresolved links, and now Iconize shortcodes no installed pack provides. This week I added a link graph report per area, and a script that gives every daily note prev and next links plus a Related section; it runs inside the five-minute importer. Daily notes with no inbound link went from 357 to 7. Every script has unittest coverage and previews before it writes.">
+  <h2><small>Trust</small><span class="e">🧪</span>Checks, tests and a linked graph</h2>
+  <div class="grid4">
+    <div class="box stat"><span class="big">🩺</span><b>0</b>Writes from <code>make check</code>: UTF-8, frontmatter, fences, links, icons</div>
+    <div class="box stat"><span class="big">🧬</span><b>7</b>test files with <code>unittest</code> across the scripts</div>
+    <div class="box stat"><span class="big">🔗</span><b>357 → 7</b>daily notes with no inbound link, after one linking pass</div>
+    <div class="box stat"><span class="big">👁️</span><b>--write</b>opt-in on every importer, link tool and map builder</div>
+  </div>
+  <ul class="small">
+    <li>📊 <code>link_graph_report.py</code>: inbound, outbound and orphan counts per area, read-only</li>
+    <li>🔗 <code>link_daily_notes.py</code>: <code>prev</code>/<code>next</code> and a fenced Related section, run every 5 minutes by the importer</li>
+    <li>🤝 Honest reporting: existing findings are kept apart from new ones, and a failed check is never called a pass</li>
+  </ul>
+</section>
+
+<!-- 23a · performance -->
+<section data-core data-notes="About 1 minute. People always ask whether this gets slow. Measured this morning on my PC. Opening a hub and waiting until every Base and chart has finished drawing takes about one and a half seconds, up to just over two for the heaviest. That's the slowest thing on the slide. Obsidian keeps an index of every note's properties and links in memory, so asking it which of 2,400 notes are hubs takes two milliseconds, and walking all eleven thousand links takes under one. That index is why Claude prefers the Obsidian MCP for property and link questions. The Python tools are quick too: the full vault check is under four seconds, the test suite runs 113 tests in under a second, and work-on's project gather is under half a second. The Jira briefing is slower, 10 to 20 seconds, because it waits on Jira, GitHub and Slack, not on the vault. The cost is memory: Obsidian sits around 2.4 GB with all of this open.">
+  <h2><small>Performance</small><span class="e">⏱️</span>How fast it is</h2>
+  <div class="grid4">
+    <div class="box stat"><span class="big">🪟</span><b>~1.5 s</b>to open a hub and finish drawing its Bases and charts (1.4 to 2.2 s)</div>
+    <div class="box stat"><span class="big">🏷️</span><b>2 ms</b>to scan the properties of all 2,402 notes from Obsidian's index</div>
+    <div class="box stat"><span class="big">🔗</span><b>0.6 ms</b>to walk all 10,911 resolved links</div>
+    <div class="box stat"><span class="big">🧪</span><b>0.8 s</b>for 113 unit tests across the vault scripts</div>
+  </div>
+  <table>
+    <tr><th>Tool</th><th>Time</th><th>What it covers</th></tr>
+    <tr><td><code>check_vault.py</code></td><td>3.8 s</td><td>All 2,297 Markdown files: UTF-8, frontmatter, fences, links, icons</td></tr>
+    <tr><td><code>link_graph_report.py</code></td><td>0.8 s</td><td>Inbound, outbound and orphan counts for every area</td></tr>
+    <tr><td><code>link_daily_notes.py</code> (preview)</td><td>0.5 s</td><td><code>prev</code>/<code>next</code> and Related links for every daily note</td></tr>
+    <tr><td><code>work-on</code> gather, project</td><td>0.4 s</td><td>Note, changelog, tasks, mentions, repo state</td></tr>
+    <tr><td><code>work-on</code> gather, Jira issue</td><td>10–20 s</td><td>Network-bound: Jira, GitHub PRs and checks, local branches</td></tr>
+  </table>
+  <p class="callout">📏 Measured 2026-10-29 on my Windows PC with Obsidian 1.15: median of three opens, best of two script runs. Obsidian used about 2.4 GB across its processes; the vault is 3,529 files.</p>
+</section>
+
+<!-- 24 · two machines -->
+<section data-notes="Full deck only, about 1 minute. Relevant if you want to do this with a work laptop. Two machines, two Claude accounts: work on the Mac, personal on the PC. Obsidian Sync carries the notes; git carries hidden folders like the skills plugin. Work notes stay with the work account by rule, and the scheduled jobs run only on the Mac. Each machine imports its own sessions into its own hub. Each of the rough edges here became a written rule, so the next session doesn't repeat the mistake.">
+  <h2><small>Honest notes</small><span class="e">💻</span>Two machines, two accounts</h2>
+  <table>
+    <tr><th></th><th>🍎 Mac (work)</th><th>🪟 PC (personal)</th></tr>
+    <tr><td>Claude account</td><td>Work</td><td>Personal</td></tr>
+    <tr><td><code>Work/</code> notes</td><td>Full access</td><td>Left to the Mac, by rule</td></tr>
+    <tr><td>Scheduled jobs</td><td>News, calendar, preferences (launchd)</td><td>Session importer only</td></tr>
+    <tr><td>Sessions imported to</td><td><code>Media/Chats/Work/</code></td><td><code>Media/Chats/Personal/</code></td></tr>
+    <tr><td>Commits</td><td><code>make backup</code></td><td>By explicit path only</td></tr>
+  </table>
+  <p class="callout">🪨 Rough edges that became rules: sync races, Mac-only paths in some skills, plugin lists that don't sync, icons that need git.</p>
+</section>
+
+<!-- 25 · delight -->
+<section data-notes="Full deck only, about 1 minute. The fun part, and it matters. A small engine renders the animated pixel-art banners in a house style; the skill renders to scratch, I review frame sheets, then it copies into the vault. Checkbox Chime is a tiny local plugin that plays a tone when a task changes state. A vault you enjoy opening is one you keep using.">
+  <h2><small>Delight</small><span class="e">🎨</span>A vault you enjoy opening</h2>
+  <div class="marquee"><div class="track">
+    <img src="../../vault-template/Media/Banners/wiki-hub.gif" alt=""><img src="../../vault-template/Media/Banners/meeting-hub.gif" alt=""><img src="../../vault-template/Media/Banners/people-hub.gif" alt=""><img src="media/banners/trips.gif" alt=""><img src="media/banners/recipes.gif" alt=""><img src="media/banners/game-hub.gif" alt=""><img src="media/banners/media-hub.gif" alt=""><img src="../../vault-template/Media/Banners/journal.gif" alt="">
+    <img src="../../vault-template/Media/Banners/wiki-hub.gif" alt=""><img src="../../vault-template/Media/Banners/meeting-hub.gif" alt=""><img src="../../vault-template/Media/Banners/people-hub.gif" alt=""><img src="media/banners/trips.gif" alt=""><img src="media/banners/recipes.gif" alt=""><img src="media/banners/game-hub.gif" alt=""><img src="media/banners/media-hub.gif" alt=""><img src="../../vault-template/Media/Banners/journal.gif" alt="">
+  </div></div>
+  <div class="marquee rev"><div class="track">
+    <img src="media/banners/Monday.gif" alt=""><img src="media/banners/Tuesday.gif" alt=""><img src="media/banners/Wednesday.gif" alt=""><img src="media/banners/Thursday.gif" alt=""><img src="media/banners/Friday.gif" alt=""><img src="media/banners/places.gif" alt=""><img src="media/banners/vehicles.gif" alt=""><img src="media/banners/scratch.gif" alt="">
+    <img src="media/banners/Monday.gif" alt=""><img src="media/banners/Tuesday.gif" alt=""><img src="media/banners/Wednesday.gif" alt=""><img src="media/banners/Thursday.gif" alt=""><img src="media/banners/Friday.gif" alt=""><img src="media/banners/places.gif" alt=""><img src="media/banners/vehicles.gif" alt=""><img src="media/banners/scratch.gif" alt="">
+  </div></div>
+  <div class="split">
+    <ul class="small">
+      <li>🕹️ <code>Scripts/banners/</code> renders 1800×300 animated GIFs; <code>pixel-banners</code> wraps it: render to scratch, review frame sheets, then copy in</li>
+      <li>📅 A banner per weekday on the daily note</li>
+      <li>🔔 Checkbox Chime: a small local plugin, a tone per task state</li>
+    </ul>
+    <video class="media old" style="max-height: 42vh; justify-self: center; width: auto" data-clip data-src="media/clips/banners-note.mp4" muted loop playsinline preload="auto"></video>
+  </div>
+</section>
+
+<!-- 26 · every other hub -->
+<section data-notes="Full deck only. Every other hub, recorded this week, each playing through before the next starts; click a name to jump. Games and Projects show their live chart dashboards. The point is the repetition: a banner, an overview, live views over records. A new area of life costs one template and one hub. Silent.">
+  <h2><small>In use</small><span class="e">🎞️</span>Every other hub</h2>
+  <div class="rotator many v2">
+    <div class="tabs">
+      <button type="button" class="cur">🎮 Games (dashboard)</button>
+      <button type="button">📁 Projects (dashboard)</button>
+      <button type="button">📄 Documents</button>
+      <button type="button">📅 Events</button>
+      <button type="button">🎬 Media</button>
+      <button type="button">📍 Places</button>
+      <button type="button">🍳 Recipes</button>
+      <button type="button">✈️ Trips</button>
+      <button type="button">🚗 Vehicles</button>
+      <button type="button">📚 Wiki</button>
+    </div>
+    <div class="stage">
+      <video data-rot class="cur" data-src="media/clips/v2-hub-games.mp4" muted playsinline preload="auto"></video>
+      <video data-rot data-src="media/clips/v2-hub-project.mp4" muted playsinline preload="metadata"></video>
+      <video data-rot data-src="media/clips/v2-hub-documents.mp4" muted playsinline preload="metadata"></video>
+      <video data-rot data-src="media/clips/v2-hub-events.mp4" muted playsinline preload="metadata"></video>
+      <video data-rot data-src="media/clips/v2-hub-media.mp4" muted playsinline preload="metadata"></video>
+      <video data-rot data-src="media/clips/v2-hub-places.mp4" muted playsinline preload="metadata"></video>
+      <video data-rot data-src="media/clips/v2-hub-recipes.mp4" muted playsinline preload="metadata"></video>
+      <video data-rot data-src="media/clips/v2-hub-trips.mp4" muted playsinline preload="metadata"></video>
+      <video data-rot data-src="media/clips/v2-hub-vehicles.mp4" muted playsinline preload="metadata"></video>
+      <video data-rot data-src="media/clips/v2-hub-wiki.mp4" muted playsinline preload="metadata"></video>
+    </div>
+  </div>
+</section>
+
+<!-- 27 · vault template -->
+<section data-core data-notes="About 1.5 minutes. New and the most copyable thing here. vault-template/ in this repo is a stripped-down copy of this vault's structure with no personal data: Home, daily notes, tasks, meetings, people, projects, a wiki, news, preferences, nineteen templates, a starter CLAUDE.md and a few fictional example notes. Three plugins do the work: Dataview, Tasks and Templater; Bases is built in. Keep work notes in a folder of their own, so you can exclude it from sync or keep it out of an agent's reach. Check what your employer allows before syncing work notes anywhere.">
+  <h2><small>Your turn</small><span class="e">🧳</span>A starter vault you can copy</h2>
+  <div class="split rev">
+    <video class="media" data-clip data-src="media/clips/v2-template.mp4" muted loop playsinline preload="auto"></video>
+    <div class="side">
+      <div class="box"><b>📁 What's in it</b><code>Home</code>, daily notes, tasks, meetings, people, projects, wiki, news, 19 templates, fictional examples.</div>
+      <div class="box"><b>🧩 Three plugins</b>Dataview, Tasks, Templater. Bases is built in.</div>
+      <div class="box"><b>📜 <code>CLAUDE.md</code></b>Starter rules for Claude Code or any agent working in the vault.</div>
+      <div class="box"><b>🔒 Work kept apart</b>Give work notes their own folder, so it can be left out of sync or out of an agent's reach. Check your employer's rules first.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 28 · map to your tool -->
+<section data-notes="Full deck only, about 1 minute. Everything rests on six building blocks, and none of them need Obsidian. The right-hand column is examples, not a verified compatibility list. The test for any tool: can an agent read and write your notes as files or through an API, and can you roll a change back.">
+  <h2><small>Your turn</small><span class="e">🧭</span>Map it to your own tool</h2>
+  <table>
+    <tr><th>Building block</th><th>What I use</th><th>In your setup (examples)</th></tr>
+    <tr><td>📄 <b>Records</b> with properties</td><td>Markdown + YAML frontmatter</td><td>Any folder of <code>.md</code> files; Logseq properties; Notion or Confluence database rows</td></tr>
+    <tr><td>🪟 <b>Views</b> over records</td><td>Bases, Dataview, Tasks, hub charts</td><td>Notion views, Logseq queries, or a script or <code>rg</code> that prints a table</td></tr>
+    <tr><td>📐 <b>Templates</b> as schema</td><td>Templater + <code>Templates/</code></td><td>Your tool's templates, or a script that stamps out a file</td></tr>
+    <tr><td>📜 <b>Rules</b> for the agent</td><td><code>CLAUDE.md</code></td><td>A <code>CLAUDE.md</code> in any folder Claude Code opens</td></tr>
+    <tr><td>🔌 <b>Agent access</b></td><td>Claude Code in the vault + Obsidian MCP</td><td>Claude Code in any folder, or your tool's MCP (Atlassian, Notion and others)</td></tr>
+    <tr><td>🕰️ <b>History</b></td><td>Git + Obsidian Sync</td><td>Git on any folder; your tool's version history</td></tr>
+  </table>
+  <p class="callout">✅ Test for any tool: can an agent read and write your notes as files or through an API, and can you roll a change back?</p>
+</section>
+
+<!-- 29 · starter kit -->
+<section data-core data-notes="About 1 minute. The copy-paste starter. Left: a rules file. Claude Code reads CLAUDE.md at the start of every session. Right: a skill is a folder with a SKILL.md whose description says when to use it; put it under .claude/skills and Claude Code finds it. Start with one that only reads and drafts, never one that posts. For this team, a release-notes digest against your own pins is a great first skill.">
+  <h2><small>Your turn</small><span class="e">🧰</span>A starter kit for any notes folder</h2>
+  <div class="grid2">
+    <pre># CLAUDE.md  (project root)
+- Read-only by default: never delete, move
+  or commit unless I ask.
+- Keep frontmatter keys and links intact.
+- Preview first, write only on approval.
+- Never paste secrets, customer data or
+  boundary CVE IDs into chat or tickets.</pre>
+    <pre># .claude/skills/standup/SKILL.md
+---
+name: standup
+description: Draft today's standup from
+  recent notes. Use when I say "standup".
+---
+1. Read the last two daily notes.
+2. List done, doing, blocked.
+3. Show the draft. Never post it.</pre>
+  </div>
+  <div class="flow">
+    <div class="box"><b>🎯 1 · Pick</b>The ritual you repeat most, or the context you hunt for most.</div>
+    <span class="arrow">→</span>
+    <div class="box"><b>✍️ 2 · Write</b>A <code>SKILL.md</code>: when to use it, the steps, what it must never do.</div>
+    <span class="arrow">→</span>
+    <div class="box"><b>🚧 3 · Bound</b>A rules file: read-only by default, ask before writes.</div>
+    <span class="arrow">→</span>
+    <div class="box"><b>📒 4 · Track</b>One note per skill: behaviour, sources, dated changes.</div>
+  </div>
+</section>
+
+<!-- 30 · philosophy -->
+<section data-core data-notes="About 1 minute. Close on the thinking behind it, from the design philosophy (docs/philosophy.md in this repo), which Claude reads too. Capture first, file second. Records with views on top. Templates are the schema. Links over hierarchy. Plain files. A record you can trust: facts, inferences and proposals kept apart, nothing invented. If you remember one line: the value is the system, not the notes.">
+  <h2><small>The philosophy</small><span class="e">🏛️</span>Why it is shaped this way</h2>
+  <div class="split">
+    <div class="side">
+      <div class="box"><b>⚡ Capture first, file second</b>Getting a thought down takes seconds; a skill files it later.</div>
+      <div class="box"><b>🗂️ Records, views on top</b>One note per real thing; views read properties, never copy them.</div>
+      <div class="box"><b>🔗 Links over hierarchy</b>Folders are a rough home; a broken link is a bug.</div>
+      <div class="box"><b>🧾 A record you can trust</b>Facts, inferences and proposals stay apart. Nothing invents owners or deadlines.</div>
+    </div>
+    <video class="media" data-clip data-src="media/clips/v2-philosophy.mp4" muted loop playsinline preload="auto"></video>
+  </div>
+  <p class="callout">💡 A vault you enjoy opening is one you keep using. The value is the system, not the notes.</p>
+</section>
+
+<!-- 31 · questions -->
+<section data-core data-notes="Close. Repeat the takeaway: one read-only skill for the thing you repeat most, a rules file, and a git repo around your notes. Point at the template vault and the get-news skill, both in this repo. Take questions.">
+  <img class="banner" src="../../vault-template/Media/Banners/home.gif" alt="">
+  <h1>🙋 Questions?</h1>
+  <div class="marquee"><div class="track">
+    <img src="../../vault-template/Media/Banners/news-hub.gif" alt=""><img src="media/banners/compliance.gif" alt=""><img src="../../vault-template/Media/Banners/task-hub.gif" alt=""><img src="../../vault-template/Media/Banners/standup.gif" alt=""><img src="../../vault-template/Media/Banners/wiki-hub.gif" alt=""><img src="media/banners/game-hub.gif" alt=""><img src="media/banners/vault-automations.gif" alt="">
+    <img src="../../vault-template/Media/Banners/news-hub.gif" alt=""><img src="media/banners/compliance.gif" alt=""><img src="../../vault-template/Media/Banners/task-hub.gif" alt=""><img src="../../vault-template/Media/Banners/standup.gif" alt=""><img src="../../vault-template/Media/Banners/wiki-hub.gif" alt=""><img src="media/banners/game-hub.gif" alt=""><img src="media/banners/vault-automations.gif" alt="">
+  </div></div>
+  <ul class="small">
+    <li>🧳 The starter vault and the <code>get-news</code> pin check are both in this repo</li>
+    <li>🚀 Try this week: one rules file, one read-only skill, a git repo around your notes</li>
+  </ul>
+</section>
+
+<div class="nav"><button id="np" type="button" aria-label="Previous slide">&#8249;</button><button id="nt" type="button" aria-label="Show notes">&#9998;</button><button id="nn" type="button" aria-label="Next slide">&#8250;</button></div>
+<div class="notes" id="notes"></div>
+<div class="n" id="n"></div>
+<script>
+  const touch = () => matchMedia('(pointer: coarse)').matches;
+  const all = [...document.querySelectorAll('section')]; let i = 0;
+  const SHORT = /[?&]short/.test(location.search);
+  const s = SHORT ? all.filter(e => e.hasAttribute('data-core')) : all;
+  const notes = document.getElementById('notes');
+  // Retry a refused play() a few times: a player freed by the previous slide can take a moment to come back.
+  const go = (v, n = 0) => v.play().catch(() => { if (n < 4) setTimeout(() => { if (s[i].contains(v) && v.paused) go(v, n + 1); }, 400); });
+  // Every clip shows its first frame (clips/posters/) while it loads.
+  document.querySelectorAll('video[data-src]').forEach(v => { v.poster = v.dataset.src.replace('clips/', 'clips/posters/').replace(/\.mp4$/, '.jpg'); });
+  // Videos hold a source only on the current slide and its two neighbours, so the next slide starts instantly and the
+  // browser never runs out of players. A rotator loads just its showing clip and the next one; a neighbour loads its first.
+  const want = (sec, v) => {
+    const k = s.indexOf(sec); if (k < 0 || Math.abs(k - i) > 1) return false;
+    const r = v.closest('.rotator'); if (!r) return true;
+    const vids = [...r.querySelectorAll('video')], j = vids.indexOf(v), cur = k === i ? (r._k || 0) : 0;
+    return j === cur || (k === i && j === (cur + 1) % vids.length);
+  };
+  const media = () => all.forEach(sec => sec.querySelectorAll('video').forEach(v => {
+    if (want(sec, v)) { if (!v.getAttribute('src')) v.src = v.dataset.src; }
+    else if (v.getAttribute('src')) { v.pause(); v.removeAttribute('src'); v.load(); }
+  }));
+  const show = k => { i = Math.max(0, Math.min(s.length - 1, k));
+    s.forEach((e, j) => e.classList.toggle('on', j === i));
+    media();
+    notes.textContent = s[i].dataset.notes || ''; s[i].scrollTop = 0;
+    all.forEach(sec => sec.querySelectorAll('.rotator').forEach(r => r._set(sec === s[i] ? 0 : -1)));
+    document.querySelectorAll('video[data-clip]').forEach(v => {
+      if (s[i].contains(v)) { v.currentTime = 0; go(v); } else { v.pause(); }
+    });
+    document.getElementById('n').textContent = (i + 1) + ' / ' + s.length + (touch() ? '' : '   ·   n notes   f fullscreen   s ' + (SHORT ? 'full' : '20-min') + ' deck');
+    document.getElementById('bar').style.width = ((i + 1) / s.length * 100) + '%';
+    location.hash = i + 1; };
+  addEventListener('keydown', e => {
+    if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) show(i + 1);
+    if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    if (e.key === 'Home') show(0);
+    if (e.key === 'End') show(s.length - 1);
+    if (e.key === 'n') notes.classList.toggle('show');
+    if (e.key === 's') location.href = location.pathname + (SHORT ? '' : '?short');
+    if (e.key === 'f') document.documentElement.requestFullscreen();
+  });
+  addEventListener('click', e => { if (touch() || e.target.closest('.nav, .tabs')) return; show(e.clientX > innerWidth / 2 ? i + 1 : i - 1); });
+  document.getElementById('np').addEventListener('click', () => show(i - 1));
+  document.getElementById('nn').addEventListener('click', () => show(i + 1));
+  document.getElementById('nt').addEventListener('click', () => notes.classList.toggle('show'));
+  let tx = 0, ty = 0;
+  addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+  addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > 1.5 * Math.abs(dy)) show(dx < 0 ? i + 1 : i - 1); }, { passive: true });
+  document.querySelectorAll('.rotator').forEach(r => {
+    const vids = [...r.querySelectorAll('video')], tabs = [...r.querySelectorAll('.tabs button')];
+    r._set = k => { clearTimeout(r._t); r._k = Math.max(k, 0); media(); if (k >= 0 && r.dataset.ms) r._t = setTimeout(() => r._set((k + 1) % vids.length), +r.dataset.ms); vids.forEach((v, j) => {
+      v.classList.toggle('cur', j === k); tabs[j].classList.toggle('cur', j === k);
+      if (j === k) { v.currentTime = 0; v.loop = !!r.dataset.ms; go(v); } else v.pause();
+    }); };
+    vids.forEach((v, j) => v.addEventListener('ended', () => { if (!r.dataset.ms && s[i] && s[i].contains(r)) r._set((j + 1) % vids.length); }));
+    tabs.forEach((t, j) => t.addEventListener('click', () => r._set(j)));
+  });
+  show((parseInt(location.hash.slice(1)) || 1) - 1);
+</script>
+</body>
+</html>
