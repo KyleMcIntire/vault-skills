@@ -17,9 +17,18 @@ media sits next to it in `media/`). Keys:
 | `f` | fullscreen |
 | `s` | switch between the full deck and the 20-minute cut (same as adding `?short` to the address) |
 
-> 🔒 **The recordings are pixelated on purpose.** Every clip and screenshot is from the author's real vault, made unreadable
-> for privacy; only the shapes and layout survive. The graph animation on slide 4 has no text and is left as is. Work
-> specifics in the text (employer, repos, channels, people) have been generalised.
+> 🧪 **The clips show a fictional vault.** The talk was given on the author's real vault, which stays private. Every clip
+> and screenshot here is recorded from a demo vault full of invented people, tickets and projects (Acme, ABC-1xx), so you
+> see the real look and real dashboards at full resolution. The graph animation on slide 4 is the real vault's graph, which
+> shows no titles. Work specifics in the text (employer, repos, channels, people) have been generalised.
+
+### How the clips were made
+
+The clips are recorded from a fictional demo vault built by [`make_demo_vault.py`](make_demo_vault.py). It copies
+[`vault-template/`](../../vault-template/README.md) and fills it with four months of invented daily notes, tasks,
+meetings, people, projects, news digests and hubs, so every chart and Base has data. Build one with
+`python3 examples/talk-deck/make_demo_vault.py /tmp/demo-vault`, add the community plugins and a theme, and open it in
+Obsidian. The output is seeded, so the same `--today` gives the same vault. Recordings of the real vault stay private.
 
 The stills below are rendered from `index.html`; the narration is the speaker notes, written up as prose.
 
@@ -32,7 +41,7 @@ The stills below are rendered from `index.html`; the narration is the speaker no
 
 ⏱️ 20-min cut
 
-![Slide 1](slides/01.png)
+![Slide 1](slides/01.jpg)
 
 Claude & Obsidian, a match made in Markdown. One notes vault plus Claude Code, and the system that grew around it, told
 from a platform engineer's side: EKS upgrades, Bottlerocket and Karpenter pins, a compliance boundary, PR reviews and
@@ -42,7 +51,7 @@ standups. The aim is to show the pattern so you can copy one piece of it, not to
 
 ⏱️ 20-min cut
 
-![Slide 2](slides/02.png)
+![Slide 2](slides/02.jpg)
 
 Three parts. First the pattern: records, views and templates, shown in the real vault. Then the workday: the skills that
 carry a platform engineer's day, from the 06:00 news digest to the standup note, with one live briefing and the boundary
@@ -53,7 +62,7 @@ The takeaway to aim for: plain files, a rules file, one read-only skill.
 
 ⏱️ 20-min cut
 
-![Slide 3](slides/03.png)
+![Slide 3](slides/03.jpg)
 
 One upgrade touches a Jira epic, three or four PRs across a utilities repo and the infra repos, a Confluence maintenance
 calendar, Slack announce channels, and for the regulated environment a GitLab MR inside a compliance boundary nobody can
@@ -65,7 +74,7 @@ surprised by what Claude changed.
 
 ## 4. What exists today
 
-![Slide 4](slides/04.png)
+![Slide 4](slides/04.jpg)
 
 The numbers come from the vault itself: 2,400+ notes counted live on the Home dashboard, 1,700+ git commits as a backup
 trail, and twenty skills, which this repo ships in [generalised form](../../plugins/vault-skills/skills/). Five things run
@@ -76,7 +85,7 @@ replaying that growth.
 
 ⏱️ 20-min cut
 
-![Slide 5](slides/05.png)
+![Slide 5](slides/05.jpg)
 
 Read it bottom to top. Plain Markdown folders by area, with templates as the schema; Obsidian Sync carries notes between
 machines and git is the backup and the only carrier for hidden folders. Access goes through the filesystem, the Obsidian
@@ -86,7 +95,7 @@ plugin and a few Python scripts) is the only hand-built part; everything else is
 
 ## 6. Records, views, templates
 
-![Slide 6](slides/06.png)
+![Slide 6](slides/06.jpg)
 
 A Jira task, a standup, a person, a project: each is one note with properties. Views read those properties and never copy
 them, so changing one value updates every hub. Templates are the schema; there is no validator because everything starts
@@ -97,21 +106,22 @@ from one. Values are functional, so `🟢 Active` must match the Base filter cha
 
 ⏱️ 20-min cut
 
-![Slide 7](slides/07.png)
+![Slide 7](slides/07.jpg)
 
-The real vault, recorded live. Home has a date line with links to today's note, standup, journal and the vault map, then a
-gallery of every hub, each with its own pixel banner. Everything on it is a view over notes; nothing is copied. The
-template's version is [`Home.md`](../../vault-template/Home.md).
+Home is the command centre. In the author's vault it has a date line with links to today's note, standup, journal and the
+vault map, then a gallery of every hub with its own pixel banner; the clip shows the starter vault's version,
+[`Home.md`](../../vault-template/Home.md), which links every hub and ends in a live stats panel. Everything on it is a view
+over notes; nothing is copied.
 
 ## 8. Every hub has a live dashboard
 
 ⏱️ 20-min cut
 
-![Slide 8](slides/08.png)
+![Slide 8](slides/08.jpg)
 
 Every hub has a live chart dashboard, drawn by one shared toolkit with Dataview JS and inline SVG, so there is no extra
 plugin and it works on desktop and phone alike. Hover for numbers, click a bar or a day to open the note behind it. The
-same toolkit draws a project dashboard and a game library, because it works for anything with properties. Once your notes
+same toolkit draws a project dashboard and a meeting dashboard, because it works for anything with properties. Once your notes
 have properties, a dashboard is one small script: see
 [`Templates/Views/hub-charts/`](../../vault-template/Templates/Views/hub-charts/).
 
@@ -119,16 +129,17 @@ have properties, a dashboard is one small script: see
 
 ⏱️ 20-min cut
 
-![Slide 9](slides/09.png)
+![Slide 9](slides/09.jpg)
 
-The work side, each with its dashboard. Work tasks are one note per Jira issue, synced one way from Jira, with story
-points, subtasks done per week and a completion calendar. The work Claude-session hub charts cost, activity and tool calls
-across every session; the meeting hub charts time in meetings and what you are waiting on. News holds the 06:00 digests and
-the work wiki is the team reference. In the deck each clip plays through, then the next starts.
+The work side, each with its dashboard. Tasks are one note per issue, synced one way from Jira, with story points,
+subtasks done per week and a completion calendar. Daily notes chart habits and mood, People groups everyone by circle and
+team, Vault automations tracks every skill, News holds the 06:00 digests and the wiki is the reference shelf. (The author's
+vault also has a Claude-session hub that charts cost and tool calls; the importer behind it isn't shipped.) In the deck each
+clip plays through, then the next starts.
 
 ## 10. Home to a Jira task, in two clicks
 
-![Slide 10](slides/10.png)
+![Slide 10](slides/10.jpg)
 
 From Home, click the work tasks card, the task hub opens on its dashboard, scroll to In flight, click a ticket, and its
 task note opens: the Jira description, acceptance criteria and the dated work log. Two clicks from anywhere to where you
@@ -138,7 +149,7 @@ left off.
 
 ⏱️ 20-min cut
 
-![Slide 11](slides/11.png)
+![Slide 11](slides/11.jpg)
 
 The day as it actually runs. Two jobs fire before you sit down: the news digest at 06:00 and the maintenance calendar sync
 at 06:30. [`start-of-day`](../../plugins/vault-skills/skills/start-of-day/) checks last night's plan against what happened
@@ -151,7 +162,7 @@ The loop is written up in [workflows](../../docs/workflows.md#the-daily-loop).
 
 ⏱️ 20-min cut
 
-![Slide 12](slides/12.png)
+![Slide 12](slides/12.jpg)
 
 The one most people want. A standard-library script reads 29 feeds in parallel (AWS What's New, the EKS doc history, the
 Kubernetes blog, and release feeds for Kubernetes, Flux, Flux Operator, Argo CD, Karpenter, Bottlerocket and Chainguard),
@@ -162,7 +173,7 @@ digest note, listing any failed source under Gaps instead of claiming "nothing n
 
 ## 13. The upgrade calendar, in the vault
 
-![Slide 13](slides/13.png)
+![Slide 13](slides/13.jpg)
 
 The company's cloud maintenance calendar lives in Confluence, and its iCal feed wants a login, so a desktop calendar can't
 subscribe. A daily script pulls the authenticated export, keeps the events whose titles match EKS, AMI, Karpenter,
@@ -172,7 +183,7 @@ specific to one Confluence setup and is not shipped here.)
 
 ## 14. Jira sync and `start-of-day`
 
-![Slide 14](slides/14.png)
+![Slide 14](slides/14.jpg)
 
 Two morning pieces. [`jira-to-obsidian-sync`](../../plugins/vault-skills/skills/jira-to-obsidian-sync/) is one way, Jira
 into task notes, matched by the `url` property rather than the filename; it fixes status folders and copies new comments in
@@ -184,7 +195,7 @@ unchanged, with evidence, and its only write is today's standup note, after you 
 
 ⏱️ 20-min cut
 
-![Slide 15](slides/15.png)
+![Slide 15](slides/15.jpg)
 
 The live demo: `/vault-skills:work-on <JIRA-KEY>` on a real ticket. The briefing covers the task, where it stands, a PR
 table, ordered next steps with runnable commands, open questions and gaps. It reads from many places (the task note, Jira,
@@ -193,14 +204,14 @@ Jira sync rather than inventing one. See [`work-on`](../../plugins/vault-skills/
 
 ## 16. The briefing, running in the terminal
 
-![Slide 16](slides/16.png)
+![Slide 16](slides/16.jpg)
 
-The backup for the live demo: a silent recording of the Claude CLI running `work-on` on the talk's own project note, with
-waiting time sped up 8x so it runs about 35 seconds. It shows the command, the gatherer script, then the briefing.
+The backup for the live demo: a silent recording of the Claude CLI running `/vault-skills:work-on Website Refresh` in the
+demo vault, sped up 4x so it runs about 40 seconds. It shows the command, the gatherer script, then the briefing.
 
 ## 17. Why the briefing can be trusted
 
-![Slide 17](slides/17.png)
+![Slide 17](slides/17.jpg)
 
 These are the things everyone has been bitten by. A green review check can mean the review job was skipped after a push,
 so the briefing lists the commits no reviewer has seen, and if a force-push rewrote the reviewed commit it diffs old and
@@ -211,7 +222,7 @@ with the newest in the registry, facts are labelled apart from guesses, and ever
 
 ⏱️ 20-min cut
 
-![Slide 18](slides/18.png)
+![Slide 18](slides/18.jpg)
 
 Anything inside the compliance boundary (its registry, its clusters, its GitLab pipelines) is unreachable from the laptop,
 and the rules file says so, so Claude never tries. Instead it writes the exact commands for the boundary's remote
@@ -221,7 +232,7 @@ package and fixed version. And look-alike environments are not interchangeable: 
 
 ## 19. `end-of-day`, PR emoji and the standup note
 
-![Slide 19](slides/19.png)
+![Slide 19](slides/19.jpg)
 
 [`end-of-day`](../../plugins/vault-skills/skills/end-of-day/) is manual-only by design, because it can post. It gathers
 the day read-only, finds stale PR descriptions, unanswered review threads and Jira issues with progress but no comment, and
@@ -232,7 +243,7 @@ standup, one note per day.
 
 ## 20. Meetings, preferences and diagrams
 
-![Slide 20](slides/20.png)
+![Slide 20](slides/20.jpg)
 
 Three newer skills. [`meeting-recording-notes`](../../plugins/vault-skills/skills/meeting-recording-notes/) transcribes
 locally with whisper and speaker matching, confirms names, and turns only your own action items into tasks.
@@ -242,7 +253,7 @@ PNG, because Slack and Jira don't render it.
 
 ## 21. `learn-preferences`: how it learns
 
-![Slide 21](slides/21.png)
+![Slide 21](slides/21.jpg)
 
 Every evening a scheduled job runs it headless. A script collects only what you wrote since the last run, per source
 (Claude prompts, PR descriptions and reviews, Jira comments, sent mail, Slack channel messages but no DMs), redacts secrets,
@@ -252,7 +263,7 @@ only move after the edits land, so a crashed run loses nothing.
 
 ## 22. Confidence comes from evidence, not wording
 
-![Slide 22](slides/22.png)
+![Slide 22](slides/22.jpg)
 
 Confidence is computed, never taken from how strongly something was worded. One sighting is low, two different days make
 it medium, and three days across at least two sources make it high. Rows unseen for 90 days fade, rejected rows are never
@@ -261,7 +272,7 @@ held 26 preferences from 394 items.
 
 ## 23. Voice and Style: how I actually write
 
-![Slide 23](slides/23.png)
+![Slide 23](slides/23.jpg)
 
 The same script measures how you write: length, bullets, code, links, mentions, questions, thanks, punctuation and emoji.
 Only Slack and mail count as natural voice, because text on GitHub and Jira under your name is often Claude-drafted and
@@ -270,7 +281,7 @@ to draft Slack messages that sound like you, and you still post them yourself.
 
 ## 24. Every automation has a tracking note
 
-![Slide 24](slides/24.png)
+![Slide 24](slides/24.jpg)
 
 Every skill and scheduled job has a tracking note: status, summary, what runs it and when, source files, verification and
 a dated changelog. The hub is a Base over those notes, with a Needs attention view for recorded follow-ups. When a skill
@@ -281,7 +292,7 @@ changes, its note changes in the same session. The template ships an
 
 ⏱️ 20-min cut
 
-![Slide 25](slides/25.png)
+![Slide 25](slides/25.jpg)
 
 Spend time here. The rules live in a file Claude reads at the start of every session, scheduled ones included. Scripts
 preview first, so writing is opt-in, and every outward action (a Jira comment, a Slack post, a commit) needs you to pick it.
@@ -292,7 +303,7 @@ sending, and work notes stay with the work account. The template's version is
 
 ## 26. Checks, tests and a linked graph
 
-![Slide 26](slides/26.png)
+![Slide 26](slides/26.jpg)
 
 Verification is boring and important. The checker is read-only: invalid UTF-8, unclosed frontmatter and code fences,
 unresolved links, and Iconize shortcodes no installed pack provides. A link graph report counts inbound and outbound links
@@ -303,7 +314,7 @@ from 357 to 7. All of these are in [`scripts/`](../../scripts/README.md), with t
 
 ⏱️ 20-min cut
 
-![Slide 27](slides/27.png)
+![Slide 27](slides/27.jpg)
 
 People always ask whether it gets slow. Opening a hub and waiting for every Base and chart to draw takes about 1.5
 seconds. Obsidian keeps an in-memory index of properties and links, so scanning 2,400 notes takes 2 ms and walking eleven
@@ -313,7 +324,7 @@ the network. The cost is memory: Obsidian sat around 2.4 GB.
 
 ## 28. Two machines, two accounts
 
-![Slide 28](slides/28.png)
+![Slide 28](slides/28.jpg)
 
 Two machines, two Claude accounts: work on the Mac, personal on the PC. Obsidian Sync carries the notes and git carries the
 hidden folders; work notes stay with the work account by rule, and scheduled jobs run only on the Mac. Every rough edge (sync
@@ -322,7 +333,7 @@ races, machine-specific paths, plugin lists that don't sync) became a written ru
 
 ## 29. A vault you enjoy opening
 
-![Slide 29](slides/29.png)
+![Slide 29](slides/29.jpg)
 
 The fun part, and it matters. A small engine renders animated 1800×300 pixel-art banners in a house style; the
 [`pixel-banners`](../../plugins/vault-skills/skills/pixel-banners/) skill renders to scratch, you review frame sheets, then
@@ -331,7 +342,7 @@ state. A vault you enjoy opening is one you keep using; see [aesthetics](../../d
 
 ## 30. Every other hub
 
-![Slide 30](slides/30.png)
+![Slide 30](slides/30.jpg)
 
 Every other hub, each playing through in turn: games, projects, documents, events, media, places, recipes, trips, vehicles
 and the wiki. The point is the repetition: a banner, an overview, live views over records. A new area of life costs one
@@ -341,7 +352,7 @@ template and one hub.
 
 ⏱️ 20-min cut
 
-![Slide 31](slides/31.png)
+![Slide 31](slides/31.jpg)
 
 The most copyable thing here. [`vault-template/`](../../vault-template/README.md) is a stripped-down copy of this vault's
 structure with no personal data: Home, daily notes, tasks, meetings, people, projects, a wiki, news, 19 templates, a
@@ -351,7 +362,7 @@ first.
 
 ## 32. Map it to your own tool
 
-![Slide 32](slides/32.png)
+![Slide 32](slides/32.jpg)
 
 Everything rests on six building blocks (records, views, templates, rules, agent access and history), and none of them need
 Obsidian. The examples column is illustrative, not a compatibility list. The test for any tool: can an agent read and write
@@ -361,7 +372,7 @@ your notes as files or through an API, and can you roll a change back?
 
 ⏱️ 20-min cut
 
-![Slide 33](slides/33.png)
+![Slide 33](slides/33.jpg)
 
 The copy-paste starter. On the left, a rules file: Claude Code reads `CLAUDE.md` at the start of every session. On the
 right, a skill: a folder with a `SKILL.md` whose description says when to use it, placed under `.claude/skills/`. Start
@@ -372,7 +383,7 @@ one. Then bound it with rules and give it a tracking note.
 
 ⏱️ 20-min cut
 
-![Slide 34](slides/34.png)
+![Slide 34](slides/34.jpg)
 
 The thinking behind it, which Claude reads too: capture first and file second, records with views on top, links over
 hierarchy, and a record you can trust, with facts, inferences and proposals kept apart and nothing invented. If you
@@ -383,7 +394,7 @@ remember one line: the value is the system, not the notes. The whole argument is
 
 ⏱️ 20-min cut
 
-![Slide 35](slides/35.png)
+![Slide 35](slides/35.jpg)
 
 The takeaway again: one read-only skill for the thing you repeat most, a rules file, and a git repo around your notes. The
 starter vault and the `get-news` pin check are both in this repo.

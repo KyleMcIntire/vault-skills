@@ -149,7 +149,7 @@
   </div></div>
   <p class="small"><span class="pill">🧠 Obsidian</span><span class="pill">⚡ Claude Code</span><span class="pill">☸️ Kubernetes</span><span class="pill">🛡️ Guardrails</span><span class="pill">🎨 Pixel banners</span></p>
   <p class="dim small">Kyle McIntire · a team talk</p>
-  <p class="dim small">🔒 Recordings are from the author's real vault, pixelated for privacy.</p>
+  <p class="dim small">🧪 Clips are recorded from a fictional demo vault (Acme, invented people) built by <code>make_demo_vault.py</code>; the real vault stays private.</p>
 </section>
 
 <!-- 2 · agenda -->
@@ -256,15 +256,15 @@
 <section data-core data-notes="About 1 minute. The real vault, not a mock-up, recorded this week. Home is the command centre: a date line with links to today's note, standup, journal and the vault map, then a gallery of every hub, each with its own pixel banner. Everything on it is a view over notes; nothing is copied. Silent, so talk over it.">
   <h2><small>The real thing</small><span class="e">🏠</span>Home: the command centre</h2>
   <video class="media shot" data-clip data-src="media/clips/v2-home-hubs.mp4" muted loop playsinline preload="auto"></video>
-  <p class="dim small">Recorded from the live vault. The hub gallery is a Base over every <code>type: Hub</code> note.</p>
+  <p class="dim small">Home links every hub, and its stats panel counts the whole vault live.</p>
 </section>
 
 <!-- 8 · dashboards -->
-<section data-core data-notes="About 1 minute. New since the last version of this talk: every hub has a live chart dashboard. One shared toolkit in Templates/Views/hub-charts draws them with Dataview JS and inline SVG, so there is no new plugin and they work on the Mac, the PC and the phone. Hover for numbers, click a bar or a day to open the note behind it. Left, the project dashboard; right, the game library, because the same toolkit works for anything with properties. Bottom line: once your notes have properties, a dashboard is one small script.">
+<section data-core data-notes="About 1 minute. New since the last version of this talk: every hub has a live chart dashboard. One shared toolkit in Templates/Views/hub-charts draws them with Dataview JS and inline SVG, so there is no new plugin and they work on the Mac, the PC and the phone. Hover for numbers, click a bar or a day to open the note behind it. Left, the project dashboard; right, the meeting dashboard, because the same toolkit works for anything with properties. Bottom line: once your notes have properties, a dashboard is one small script.">
   <h2><small>New</small><span class="e">📈</span>Every hub has a live dashboard</h2>
   <div class="duo">
     <figure><video class="media" data-clip data-src="media/clips/v2-project-dash.mp4" muted loop playsinline preload="auto"></video><figcaption>📁 Project Hub: open tasks, status, days since review</figcaption></figure>
-    <figure><video class="media" data-clip data-src="media/clips/v2-games-dash.mp4" muted loop playsinline preload="auto"></video><figcaption>🎮 Games Hub: the same toolkit on a game library</figcaption></figure>
+    <figure><video class="media" data-clip data-src="media/clips/v2-games-dash.mp4" muted loop playsinline preload="auto"></video><figcaption>🗓️ Meeting Hub: the same toolkit on meetings</figcaption></figure>
   </div>
   <p class="callout">📦 One toolkit, <code>Templates/Views/hub-charts/</code>: Dataview JS + inline SVG. No new plugin, hover for numbers, click to open the note.</p>
 </section>
@@ -274,12 +274,12 @@
   <h2><small>The real thing</small><span class="e">💼</span>The work hubs and their dashboards</h2>
   <div class="rotator v2">
     <div class="tabs">
-      <button type="button" class="cur">✅ Work tasks (one note per Jira issue)</button>
-      <button type="button">🤖 Work Claude sessions</button>
-      <button type="button">🗓️ Meetings</button>
-      <button type="button">💼 Work hub</button>
+      <button type="button" class="cur">✅ Tasks (one note per issue)</button>
+      <button type="button">📅 Daily notes</button>
+      <button type="button">👥 People</button>
+      <button type="button">🤖 Vault automations</button>
       <button type="button">📰 News (06:00 digests)</button>
-      <button type="button">📖 Work wiki</button>
+      <button type="button">📖 Wiki</button>
     </div>
     <div class="stage">
       <video data-rot class="cur" data-src="media/clips/v2-hub-tasks.mp4" muted playsinline preload="auto"></video>
@@ -369,10 +369,10 @@
 </section>
 
 <!-- 16 · work-on recording -->
-<section data-notes="Backup for the live demo. A silent recording of the real Claude CLI running work-on on this talk's own project note. Waiting stretches are sped up 8x, so it runs about 35 seconds. Narrate: the command, the gatherer script, then the briefing.">
+<section data-notes="Backup for the live demo. A silent recording of the real Claude CLI running work-on on a project in the fictional demo vault. The whole run is sped up 4x, so it takes about 40 seconds. Narrate: the command, the gatherer script, then the briefing.">
   <h2><small>Live demo</small><span class="e">⏯️</span>The briefing, running in the terminal</h2>
-  <video class="media shot wide" data-clip data-src="media/clips/claude-cli-demo-v2.mp4" muted loop playsinline preload="auto"></video>
-  <p class="dim small">Silent recording of <code>/vault-skills:work-on</code> on a project note. Waiting time sped up 8x.</p>
+  <video class="media shot wide" style="aspect-ratio: 1500 / 742" data-clip data-src="media/clips/claude-cli-demo-v2.mp4" muted loop playsinline preload="auto"></video>
+  <p class="dim small">Silent recording of <code>/vault-skills:work-on Website Refresh</code> in the demo vault, sped up 4x.</p>
 </section>
 
 <!-- 17 · trust the briefing -->
@@ -576,7 +576,7 @@
       <li>📅 A banner per weekday on the daily note</li>
       <li>🔔 Checkbox Chime: a small local plugin, a tone per task state</li>
     </ul>
-    <video class="media old" style="max-height: 42vh; justify-self: center; width: auto" data-clip data-src="media/clips/banners-note.mp4" muted loop playsinline preload="auto"></video>
+    <video class="media" style="max-height: 42vh; justify-self: center; width: auto; aspect-ratio: 3 / 2" data-clip data-src="media/clips/banners-note.mp4" muted loop playsinline preload="auto"></video>
   </div>
 </section>
 
