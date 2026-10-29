@@ -1,0 +1,123 @@
+summaries:
+  Latest: values.latest()
+filters:
+  and:
+    - file.inFolder("Meetings")
+    - file.ext == "md"
+    - type == "meeting"
+formulas:
+  meeting_label: link(file.path, if(note.title, note.title, file.basename))
+  meeting_date: if(note.date, date(note.date), if(note["creation date"], date(note["creation date"]), file.ctime))
+  days_ago: (today() - formula.meeting_date).days
+  attendee_count: if(note.attendees, list(note.attendees).length, 0)
+properties:
+  formula.meeting_label:
+    displayName: Meeting
+  formula.meeting_date:
+    displayName: Date
+  formula.days_ago:
+    displayName: Days ago
+  formula.attendee_count:
+    displayName: People
+  note.meeting type:
+    displayName: Type
+  note.project:
+    displayName: Project
+  note.status:
+    displayName: Status
+  note.attendees:
+    displayName: Attendees
+  note.summary:
+    displayName: Summary
+  note.duration:
+    displayName: Minutes
+views:
+  - type: table
+    name: Recent meetings
+    order:
+      - formula.meeting_label
+      - formula.meeting_date
+      - meeting type
+      - project
+      - status
+      - attendees
+      - summary
+    sort:
+      - property: formula.meeting_date
+        direction: DESC
+    limit: 10
+    columnSize:
+      formula.meeting_label: 300
+      note.summary: 460
+  - type: table
+    name: Waiting on others
+    filters:
+      and:
+        - status.contains("Waiting")
+    order:
+      - formula.meeting_label
+      - formula.meeting_date
+      - formula.days_ago
+      - project
+      - summary
+    sort:
+      - property: formula.meeting_date
+        direction: DESC
+  - type: table
+    name: This week
+    filters:
+      and:
+        - formula.days_ago <= 7
+    order:
+      - formula.meeting_label
+      - formula.meeting_date
+      - meeting type
+      - attendees
+      - duration
+      - status
+    sort:
+      - property: formula.meeting_date
+        direction: DESC
+    summaries:
+      duration: Sum
+  - type: table
+    name: By project
+    groupBy:
+      property: project
+      direction: ASC
+    order:
+      - formula.meeting_label
+      - formula.meeting_date
+      - meeting type
+      - status
+    sort:
+      - property: formula.meeting_date
+        direction: DESC
+  - type: table
+    name: Linked to this note
+    filters:
+      and:
+        - file.hasLink(this.file)
+    order:
+      - formula.meeting_label
+      - formula.meeting_date
+      - meeting type
+      - summary
+    sort:
+      - property: formula.meeting_date
+        direction: DESC
+  - type: table
+    name: All meetings
+    order:
+      - formula.meeting_label
+      - formula.meeting_date
+      - meeting type
+      - project
+      - status
+      - formula.attendee_count
+      - duration
+    sort:
+      - property: formula.meeting_date
+        direction: DESC
+    summaries:
+      duration: Sum

@@ -1,0 +1,96 @@
+/* Home dashboard layout.
+   - `cssclasses: [home-dashboard]` lifts the readable line width so the page uses the full pane.
+   - `> [!multi-column]` lays out the callouts nested inside it side by side, wrapping on narrow panes.
+   - `.home-stats` styles the stat tiles rendered by the "At a glance" dataviewjs block. */
+
+/* ---------- full-width page ---------- */
+.home-dashboard {
+  --file-line-width: 100%;
+}
+
+.markdown-preview-view.home-dashboard .markdown-preview-sizer,
+.markdown-source-view.home-dashboard.is-readable-line-width .cm-sizer,
+.markdown-source-view.home-dashboard.is-readable-line-width .cm-contentContainer {
+  max-width: 100% !important;
+}
+
+/* ---------- multi-column callout ---------- */
+.callout[data-callout="multi-column"] {
+  --callout-padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0.75em 0;
+}
+
+.callout[data-callout="multi-column"] > .callout-title {
+  display: none;
+}
+
+.callout[data-callout="multi-column"] > .callout-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.9rem;
+  padding: 0;
+}
+
+.callout[data-callout="multi-column"] > .callout-content > * {
+  flex: 1 1 340px;
+  min-width: 0;
+  margin: 0 !important;
+}
+
+.callout[data-callout="multi-column"] > .callout-content > p:empty,
+.callout[data-callout="multi-column"] > .callout-content > br {
+  display: none;
+}
+
+/* keep wide tables and Bases inside their column */
+.callout[data-callout="multi-column"] .callout-content .callout-content {
+  overflow-x: auto;
+}
+
+/* ---------- stat tiles ---------- */
+.home-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6rem;
+  margin: 0.5em 0 1em;
+}
+
+.home-stats .home-stat {
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-left: 4px solid var(--stat-colour, var(--interactive-accent));
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  line-height: 1.25;
+}
+
+.home-stats .home-stat-value {
+  font-size: 1.6em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--stat-colour, var(--text-normal));
+}
+
+.home-stats .home-stat-label {
+  font-size: 0.8em;
+  color: var(--text-muted);
+}
+
+/* Hide duplicate Pixel Banner and Pretty Properties decorations for
+   notes using Iconize portraits: cssclasses: [file-portrait-icon]. */
+.file-portrait-icon .banner-icon-overlay,
+.file-portrait-icon .icon-wrapper,
+.file-portrait-icon .title-icon-wrapper {
+  display: none !important;
+}
+
+/* Iconize's link-icon post-processor can run twice on one link and prepend
+   the icon twice; hide any icon that directly follows another one. */
+.iconize-icon-in-link + .iconize-icon-in-link {
+  display: none;
+}

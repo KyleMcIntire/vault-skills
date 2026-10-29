@@ -1,0 +1,66 @@
+[
+ [
+  "(?i)\\bkubernetties\\b",
+  "Kubernetes"
+ ],
+ [
+  "(?i)\\b(cube ?ctl|cube control|cube cuddle)\\b",
+  "kubectl"
+ ],
+ [
+  "(?i)\\bcube config\\b",
+  "kubeconfig"
+ ],
+ [
+  "(?i)\\bcarpenter\\b",
+  "Karpenter"
+ ],
+ [
+  "\\bCDEs\\b",
+  "CVEs"
+ ],
+ [
+  "(?i)\\bdependable\\b",
+  "Dependabot"
+ ],
+ [
+  "(?i)\\barmies\\b",
+  "AMIs"
+ ],
+ [
+  "(?i)\\bterra form\\b",
+  "Terraform"
+ ],
+ [
+  "(?i)\\bargo ?c ?d\\b",
+  "Argo CD"
+ ],
+ [
+  "(?i)\\bgit hub\\b",
+  "GitHub"
+ ],
+ [
+  "(?i)\\bgit lab\\b",
+  "GitLab"
+ ],
+ [
+  "(?i)\\bhelm chart\\b",
+  "Helm chart"
+ ],
+ [
+  "(?i)\\bpager duty\\b",
+  "PagerDuty"
+ ],
+ [
+  "(?i)\\bjira\\b",
+  "Jira"
+ ],
+ [
+  "(?i)\\bgrafana\\b",
+  "Grafana"
+ ],
+ [
+  "(?i)\\bprometheus\\b",
+  "Prometheus"
+ ]
+]

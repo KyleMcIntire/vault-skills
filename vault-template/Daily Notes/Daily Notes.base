@@ -1,0 +1,28 @@
+filters:
+  and:
+    - file.inFolder("Daily Notes")
+    - file.ext == "md"
+    - type == "Daily Note"
+views:
+  - type: table
+    name: Recent
+    order:
+      - file.name
+      - mood
+      - summary
+      - file.mtime
+    sort:
+      - property: file.name
+        direction: DESC
+    limit: 10
+  - type: table
+    name: By mood
+    groupBy:
+      property: mood
+      direction: ASC
+    order:
+      - file.name
+      - summary
+    sort:
+      - property: file.name
+        direction: DESC

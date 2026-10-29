@@ -1,0 +1,12 @@
+{
+  "name": "vault-skills",
+  "description": "Claude Code skills for running an Obsidian vault: capture, briefings, meeting notes, task and project hygiene, drafting in your own voice, and Obsidian format references.",
+  "owner": { "name": "vault-skills contributors" },
+  "plugins": [
+    {
+      "name": "vault-skills",
+      "source": "./plugins/vault-skills",
+      "description": "Obsidian vault workflows for Claude Code: people notes, meeting recording notes, Jira sync, work-on briefings, start-of-day and end-of-day, news digests, learned preferences and writing voice, drafting messages in your voice, mail and calendar lookups, PR announcement reactions, brain-dump capture, pixel banners, Mermaid images, image icons, task wrap-up, and Obsidian Markdown, Bases, Canvas and CLI references."
+    }
+  ]
+}

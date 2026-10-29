@@ -1,0 +1,58 @@
+filters:
+  and:
+    - file.inFolder("People")
+    - file.hasTag("person")
+properties:
+  note.name:
+    displayName: Name
+views:
+  - type: table
+    name: List
+    order:
+      - file.name
+      - relationship
+      - role
+      - location
+      - file.backlinks
+    sort:
+      - property: file.backlinks
+        direction: DESC
+  - type: cards
+    name: Cards
+    order:
+      - name
+      - relationship
+      - role
+    image: note.image
+  - type: table
+    name: Coworkers
+    filters:
+      and:
+        - or:
+            - relationship == "coworker"
+            - relationship == "manager"
+    order:
+      - file.name
+      - relationship
+      - role
+      - location
+      - email
+    sort:
+      - property: file.name
+        direction: ASC
+  - type: table
+    name: Family and friends
+    filters:
+      and:
+        - or:
+            - relationship == "family"
+            - relationship == "friend"
+    order:
+      - file.name
+      - relationship
+      - birthdate
+      - phone
+      - email
+    sort:
+      - property: file.name
+        direction: ASC

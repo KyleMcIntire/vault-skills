@@ -1,0 +1,11 @@
+#!/bin/sh
+# Fictional acli stand-in for offline tests. Prints canned JSON.
+case "$*" in
+  *" search "*) echo '[{"key":"ABC-1"}]' ;;
+  *" view ABC-1 "*)
+cat <<'JSON'
+{"fields":{"summary":"Example task","status":{"name":"In Progress","statusCategory":{"name":"In Progress"}},"updated":"2026-01-02T09:00:00.000-0600","resolutiondate":null,"parent":null,"reporter":{"displayName":"Sam Sample"},"customfield_10028":3,"issuelinks":[],"description":{"type":"doc","version":1,"content":[{"type":"paragraph","content":[{"type":"text","text":"Do the thing."}]}]},"comment":{"total":1,"comments":[{"author":{"displayName":"Sam Sample"},"created":"2026-01-02T08:00:00.000-0600","body":{"type":"doc","version":1,"content":[{"type":"paragraph","content":[{"type":"text","text":"Started."}]}]}}]}}}
+JSON
+;;
+  *) echo "bad args: $*" >&2; exit 2 ;;
+esac

@@ -1,0 +1,8 @@
+{
+  "name": "vault-skills",
+  "description": "Obsidian vault workflows for Claude Code, configured per vault through a .vault-skills.yaml file.",
+  "author": {
+    "name": "vault-skills contributors"
+  },
+  "version": "0.1.0"
+}

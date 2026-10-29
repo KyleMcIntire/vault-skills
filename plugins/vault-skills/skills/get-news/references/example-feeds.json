@@ -1,0 +1,20 @@
+{
+  "_comment": "EXAMPLE feed list. Edit freely: this file is yours. kind: filter = keep keyword matches only; release = stable versions of software you run; security = incident-like titles only; cisa = CISA alerts and incident-like titles; all = every item; local = local news (newest few). Add \"product\" to a release feed to compare it with a version you pin (see --pins).",
+  "keywords": ["Kubernetes", "EKS", "Terraform", "Docker", "Linux", "FIPS", "IAM", "CVE", "SBOM", "CloudWatch"],
+  "ignore_title_regex": "",
+  "sources": [
+    {"name": "AWS What's New", "url": "https://aws.amazon.com/about-aws/whats-new/recent/feed/", "kind": "filter"},
+    {"name": "Kubernetes blog", "url": "https://kubernetes.io/feed.xml", "kind": "filter"},
+    {"name": "Kubernetes releases", "url": "https://github.com/kubernetes/kubernetes/releases.atom", "kind": "release", "product": "Kubernetes"},
+    {"name": "Flux releases", "url": "https://github.com/fluxcd/flux2/releases.atom", "kind": "release", "product": "Flux"},
+    {"name": "Argo CD releases", "url": "https://github.com/argoproj/argo-cd/releases.atom", "kind": "release", "product": "Argo CD"},
+    {"name": "Karpenter releases", "url": "https://github.com/aws/karpenter-provider-aws/releases.atom", "kind": "release", "product": "Karpenter"},
+    {"name": "Ars Technica security", "url": "https://arstechnica.com/security/feed/", "kind": "security"},
+    {"name": "The Hacker News", "url": "https://feeds.feedburner.com/TheHackersNews", "kind": "security"},
+    {"name": "BleepingComputer", "url": "https://www.bleepingcomputer.com/feed/", "kind": "security"},
+    {"name": "Krebs on Security", "url": "https://krebsonsecurity.com/feed/", "kind": "security"},
+    {"name": "Google Security Blog", "url": "https://security.googleblog.com/feeds/posts/default", "kind": "security"},
+    {"name": "CISA advisories", "url": "https://www.cisa.gov/cybersecurity-advisories/all.xml", "kind": "cisa"},
+    {"name": "AWS security bulletins", "url": "https://aws.amazon.com/security/security-bulletins/feed/", "kind": "all"}
+  ]
+}

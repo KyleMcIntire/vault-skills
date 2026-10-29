@@ -1,0 +1,149 @@
+filters:
+  and:
+    - file.inFolder("Projects")
+    - file.ext == "md"
+formulas:
+  project: link(file.path, if(note.title, note.title, file.basename))
+  status_rank: if(status == "🟢 Active", 1, if(status == "🧪 Planning", 2, if(status == "⏸️ Paused", 3, if(status == "💡 Idea", 4, if(status == "✅ Done", 5, 6)))))
+  last_reviewed: if(note.reviewed, date(note.reviewed), file.mtime)
+  days_since_review: (today() - formula.last_reviewed).days
+  freshness: if(formula.days_since_review > 30, "Review due", "Fresh")
+  note_link: link(file.path, if(note.title, note.title, file.basename))
+properties:
+  formula.project:
+    displayName: Project
+  formula.note_link:
+    displayName: Note
+  formula.last_reviewed:
+    displayName: Reviewed
+  formula.days_since_review:
+    displayName: Days since review
+  formula.freshness:
+    displayName: Freshness
+  note.status:
+    displayName: Status
+  note.category:
+    displayName: Category
+  note.summary:
+    displayName: Summary
+  note.next step:
+    displayName: Next step
+  note.started:
+    displayName: Started
+  file.folder:
+    displayName: Folder
+  file.mtime:
+    displayName: Edited
+views:
+  - type: table
+    name: In progress
+    filters:
+      and:
+        - type == "project"
+        - status == "🟢 Active"
+    order:
+      - formula.project
+      - status
+      - category
+      - next step
+      - formula.freshness
+      - formula.last_reviewed
+    sort:
+      - property: formula.last_reviewed
+        direction: DESC
+    columnSize:
+      formula.project: 260
+      note.next step: 480
+  - type: table
+    name: By category
+    filters:
+      and:
+        - type == "project"
+    groupBy:
+      property: category
+      direction: ASC
+    order:
+      - formula.project
+      - status
+      - summary
+      - started
+    sort:
+      - property: formula.status_rank
+        direction: ASC
+    columnSize:
+      formula.project: 260
+      note.summary: 480
+  - type: table
+    name: Ideas
+    filters:
+      and:
+        - type == "project"
+        - status == "💡 Idea"
+    order:
+      - formula.project
+      - category
+      - summary
+      - started
+    sort:
+      - property: formula.project
+        direction: ASC
+  - type: table
+    name: Paused and done
+    filters:
+      and:
+        - type == "project"
+        - or:
+            - status == "⏸️ Paused"
+            - status == "✅ Done"
+    order:
+      - formula.project
+      - status
+      - category
+      - summary
+      - formula.last_reviewed
+    sort:
+      - property: formula.status_rank
+        direction: ASC
+      - property: formula.last_reviewed
+        direction: DESC
+  - type: table
+    name: Recently edited
+    order:
+      - formula.note_link
+      - file.folder
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: DESC
+    limit: 10
+  - type: table
+    name: Project files
+    filters:
+      and:
+        - file.inFolder(this.file.folder)
+        - file.path != this.file.path
+    order:
+      - formula.note_link
+      - file.folder
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: DESC
+  - type: table
+    name: All projects
+    filters:
+      and:
+        - type == "project"
+    order:
+      - formula.project
+      - status
+      - category
+      - started
+      - formula.last_reviewed
+      - formula.days_since_review
+      - repo
+    sort:
+      - property: formula.status_rank
+        direction: ASC
+      - property: formula.project
+        direction: ASC

@@ -1,0 +1,91 @@
+# Copy to the root of your vault as .vault-skills.yaml and edit. See docs/CONFIG.md.
+owner:
+  name: "Alex Example"
+  note: "[[Alex Example]]"
+  aliases: ["Alex"]
+
+folders:
+  daily: "Daily Notes"
+  tasks: "Tasks"
+  meetings: "Meetings"
+  people: "People"
+  projects: "Projects"
+  wiki: "Wiki"
+  news: "News"
+  preferences: "Preferences"
+  templates: "Templates"
+  banners: "Media/Banners"
+  scratch: "Local"
+  attachments: "Media/Attachments"
+  comms: "People/Comms"
+  events: "Events"
+  places: "Places"
+  recipes: "Recipes"
+  trips: "Trips"
+  vehicles: "Vehicles"
+  documents: "Documents"
+  health: "Health"
+  repos: "~/Repos"
+
+templates:
+  daily: "Daily Note Template.md"
+  meeting: "Meeting Template.md"
+  task: "Task Template.md"
+  person: "Person Template.md"
+  project: "Project Template.md"
+  standup: "Standup Template.md"
+
+task_statuses:
+  todo: "To Do"
+  in_progress: "In Progress"
+  done: "Done"
+  wont_do: "Won't Do"
+
+integrations:
+  jira:
+    site: "acme.invalid"
+    project_keys: ["ABC"]
+    user_email: "alex@example.com"
+    cli: "acli"
+    display_names: ["Alex Example"]
+  github:
+    org: "acme"
+    user: "alex-example"
+  slack:
+    workspace: "acme"
+    announce_channel: "#announce-prs"
+    team_handle: "@platform-team"
+    user_id: ""
+    merged_emoji: "merged"
+    second_reaction: []
+  confluence:
+    site: "acme.invalid"
+  catalog:
+    kind: "backstage"
+  calendar_mail:
+    provider: "macos"
+  mail:
+    helper_script: ""
+  weather_location: "Springfield, IL"
+  news_feeds:
+    rss: []
+    slack_channels: []
+
+meetings:
+  standup_title: "Team Standup"
+  standup_entry_heading: ""
+  standup_hub_link: ""
+
+tags:
+  work: "#Work"
+  personal: "#Personal"
+
+sections:
+  task_inbox: "Task Inbox"
+
+people:
+  groups: []
+
+safety:
+  never_commit: true
+  redact_identifiers: []

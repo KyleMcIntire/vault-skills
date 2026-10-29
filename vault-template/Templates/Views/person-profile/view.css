@@ -1,0 +1,231 @@
+/* Person profile card (view.js). Dataview loads this file with the view.
+   Everything is under .pp-card, so it can't leak into other notes. */
+
+.pp-card {
+  --pp-accent: hsl(var(--pp-hue, 210) 65% 58%);
+  --pp-radius: 12px;
+  position: relative;
+  margin: 0.5em 0 1.25em;
+  padding: 1rem 1.1rem 1.1rem;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--pp-radius);
+  background:
+    linear-gradient(135deg, hsl(var(--pp-hue, 210) 70% 55% / 0.14), transparent 55%),
+    var(--background-secondary);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+  overflow: hidden;
+}
+
+.pp-card a.pp-link { color: var(--link-color); text-decoration: none; cursor: pointer; }
+.pp-card a.pp-link:hover { text-decoration: underline; }
+.pp-card a.external-link { background-image: none; padding-right: 0; }
+.pp-muted { color: var(--text-muted); }
+
+/* ---------- hero ---------- */
+.pp-hero {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.1rem;
+  align-items: center;
+}
+
+@container (max-width: 520px) {
+  .pp-hero { grid-template-columns: 1fr; justify-items: start; }
+}
+
+.pp-card { container-type: inline-size; }
+
+.pp-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+  display: block;
+  margin: 0 !important;
+  box-shadow: 0 0 0 2px var(--background-primary);
+}
+
+.pp-avatar.pp-xl {
+  width: 128px;
+  height: 128px;
+  border-radius: 22px;
+  box-shadow:
+    0 0 0 3px var(--background-primary),
+    0 0 0 5px var(--pp-accent),
+    0 6px 18px rgb(0 0 0 / 0.18);
+}
+
+.pp-initials {
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.85em;
+  color: white;
+  background: linear-gradient(135deg, hsl(var(--pp-hue) 60% 55%), hsl(calc(var(--pp-hue) + 40) 60% 42%));
+}
+
+.pp-initials.pp-xl { font-size: 2.6em; letter-spacing: 0.03em; }
+
+.pp-info { min-width: 0; }
+
+.pp-headline { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+.pp-name { font-size: 1.45em; font-weight: 700; line-height: 1.2; }
+.pp-pronouns {
+  font-size: 0.8em;
+  color: var(--text-muted);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 999px;
+  padding: 0 0.45em;
+}
+
+.pp-title { color: var(--text-muted); margin-top: 0.1rem; }
+
+.pp-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.55rem; }
+
+.pp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-size: 0.82em;
+  line-height: 1.5;
+  padding: 0.1em 0.6em;
+  border-radius: 999px;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  white-space: nowrap;
+}
+
+.pp-chip.pp-accent {
+  border-color: hsl(var(--pp-hue, 210) 60% 55% / 0.55);
+  background: hsl(var(--pp-hue, 210) 60% 55% / 0.12);
+}
+
+.pp-chip.pp-off-hours { opacity: 0.7; }
+.pp-chip.pp-off-hours::after { content: "🌙"; }
+.pp-chip.pp-soon { border-color: #f687b3; background: #f687b322; font-weight: 600; }
+
+.pp-contact { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin-top: 0.55rem; font-size: 0.85em; }
+.pp-contact-item { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+
+/* ---------- stat tiles ---------- */
+.pp-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.pp-stat {
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-top: 3px solid var(--pp-stat, var(--interactive-accent));
+  border-radius: 9px;
+  padding: 0.4rem 0.6rem;
+  line-height: 1.25;
+}
+
+.pp-stat-value { font-size: 1.3em; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pp-stat-label { font-size: 0.75em; color: var(--text-muted); }
+.pp-stat.pp-zero { opacity: 0.45; }
+
+/* ---------- columns ---------- */
+.pp-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.pp-box {
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem 0.7rem;
+  min-width: 0;
+}
+
+.pp-box.pp-wide { grid-column: span 2; }
+@container (max-width: 640px) { .pp-box.pp-wide { grid-column: auto; } }
+
+.pp-box-title {
+  font-size: 0.78em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.45rem;
+}
+
+.pp-empty { color: var(--text-muted); font-style: italic; }
+
+/* timeline */
+ul.pp-timeline { list-style: none; margin: 0; padding: 0; }
+
+ul.pp-timeline > li {
+  position: relative;
+  margin: 0;
+  padding: 0 0 0.55rem 1rem;
+  border-left: 2px solid var(--background-modifier-border);
+}
+
+ul.pp-timeline > li:last-child { padding-bottom: 0; }
+
+ul.pp-timeline > li::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 0.35em;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--pp-stat, var(--interactive-accent));
+  box-shadow: 0 0 0 2px var(--background-primary);
+}
+
+ul.pp-timeline > li::marker { content: none; }
+.pp-when { font-size: 0.8em; }
+.pp-date { font-weight: 600; font-variant-numeric: tabular-nums; }
+.pp-snippet { font-size: 0.86em; color: var(--text-normal); margin-top: 0.1rem; overflow-wrap: anywhere; }
+
+/* faces */
+.pp-faces { display: flex; flex-wrap: wrap; gap: 0.55rem 0.4rem; }
+
+.pp-card a.pp-face {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 3.6rem;
+  gap: 0.15rem;
+  color: var(--text-normal);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pp-card a.pp-face:hover .pp-avatar { transform: scale(1.08); box-shadow: 0 0 0 2px var(--pp-accent); }
+.pp-face .pp-avatar { transition: transform 120ms ease; }
+
+.pp-face-name {
+  font-size: 0.72em;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pp-badge {
+  position: absolute;
+  top: -4px;
+  right: 2px;
+  min-width: 1.25rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  font-size: 0.65em;
+  font-weight: 700;
+  line-height: 1.25rem;
+  text-align: center;
+  color: white;
+  background: var(--pp-accent);
+  box-shadow: 0 0 0 2px var(--background-primary);
+}

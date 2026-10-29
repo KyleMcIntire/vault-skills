@@ -1,0 +1,49 @@
+filters:
+  and:
+    - file.ext == "md"
+    - file.path != this.file.path
+    - '!file.inFolder("Templates")'
+formulas:
+  entry: link(file.path, if(note.title, note.title, file.basename))
+  kind: if(file.inFolder("Meetings"), "Meeting", if(file.inFolder("Daily Notes"), "Daily note", if(file.inFolder("Tasks"), "Task", "Other")))
+  when: if(note.date, date(note.date), if(note["creation date"], date(note["creation date"]), file.mtime))
+properties:
+  formula.entry:
+    displayName: Note
+  formula.kind:
+    displayName: Kind
+  formula.when:
+    displayName: Date
+  note.summary:
+    displayName: Summary
+views:
+  - type: table
+    name: All mentions
+    filters:
+      and:
+        - file.hasLink(this.file)
+    groupBy:
+      property: formula.kind
+      direction: ASC
+    order:
+      - formula.entry
+      - formula.when
+      - summary
+    sort:
+      - property: formula.when
+        direction: DESC
+  - type: table
+    name: Related tasks
+    filters:
+      and:
+        - formula.kind == "Task"
+        - type == "task"
+        - or:
+            - file.hasLink(this.file)
+            - this.file.hasLink(file)
+    order:
+      - formula.entry
+      - status
+    sort:
+      - property: file.mtime
+        direction: DESC

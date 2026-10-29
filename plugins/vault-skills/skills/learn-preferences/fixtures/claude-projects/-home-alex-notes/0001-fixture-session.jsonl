@@ -1,0 +1,5 @@
+{"type":"user","timestamp":"2026-10-20T10:00:00.000Z","message":{"content":"Please always keep commit messages under 70 characters, I prefer imperative mood."}}
+{"type":"assistant","timestamp":"2026-10-20T10:00:05.000Z","message":{"content":"ok"}}
+{"type":"user","timestamp":"2026-10-21T10:00:00.000Z","message":{"content":"yes"}}
+{"type":"user","timestamp":"2026-10-22T10:00:00.000Z","message":{"content":"<system-reminder>ignore</system-reminder>"}}
+{"type":"user","timestamp":"2026-10-23T10:00:00.000Z","message":{"content":"No, don't mock the database in integration tests. Use the real one."}}

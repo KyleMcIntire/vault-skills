@@ -1,0 +1,32 @@
+filters:
+  and:
+    - file.inFolder("Wiki")
+    - file.ext == "md"
+    - type == "Wiki"
+properties:
+  note.summary:
+    displayName: Summary
+views:
+  - type: table
+    name: All wiki notes
+    order:
+      - file.name
+      - summary
+      - file.tags
+      - file.folder
+      - file.mtime
+    sort:
+      - property: file.name
+        direction: ASC
+    columnSize:
+      note.summary: 480
+  - type: table
+    name: Recently edited
+    order:
+      - file.name
+      - summary
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: DESC
+    limit: 10

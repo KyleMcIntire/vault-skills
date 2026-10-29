@@ -1,0 +1,85 @@
+filters:
+  and:
+    - file.inFolder("Tasks")
+    - file.ext == "md"
+    - type == "task"
+properties:
+  note.next step:
+    displayName: Next step
+  note.story points:
+    displayName: Points
+views:
+  - type: table
+    name: Active
+    filters:
+      and:
+        - status.contains("In Progress")
+    order:
+      - file.name
+      - next step
+      - file.mtime
+      - project
+      - reporter
+    sort:
+      - property: file.mtime
+        direction: DESC
+    limit: 10
+    columnSize:
+      file.name: 439
+      note.next step: 500
+  - type: table
+    name: Next Up
+    filters:
+      and:
+        - status.contains("To Do")
+    order:
+      - file.name
+      - next step
+      - project
+      - reporter
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: DESC
+    limit: 10
+  - type: table
+    name: Needs Triage
+    filters:
+      and:
+        - or:
+            - status == "none"
+            - status == ""
+    order:
+      - file.name
+      - project
+      - reporter
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: DESC
+    limit: 10
+  - type: table
+    name: Recently Done
+    filters:
+      and:
+        - status.contains("Done")
+    order:
+      - file.name
+      - project
+      - story points
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: DESC
+    limit: 10
+  - type: table
+    name: All tasks
+    order:
+      - file.name
+      - status
+      - project
+      - story points
+      - file.mtime
+    sort:
+      - property: file.mtime
+        direction: DESC

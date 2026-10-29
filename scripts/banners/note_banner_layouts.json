@@ -1,0 +1,9 @@
+{
+  "person-note": {"source": "People/People Hub.md", "banner-height": 200, "banner-y": 30, "banner-x": 50, "content-start": 121, "scene-shift": 0},
+  "task-note": {"source": "Tasks/Task Hub.md", "banner-height": 200, "banner-y": 82, "banner-x": 51, "content-start": 101, "scene-shift": 8},
+  "meeting-note": {"source": "Meetings/Meeting Hub.md", "banner-height": 200, "banner-y": 50, "banner-x": 49, "content-start": 131, "scene-shift": 0},
+  "project-note": {"source": "Projects/Project Hub.md", "banner-height": 200, "banner-y": 69, "banner-x": 53, "content-start": 101, "scene-shift": 5},
+  "reference-note": {"source": "Wiki/Wiki Hub.md", "banner-height": 200, "banner-y": 50, "content-start": 101, "scene-shift": 0},
+  "communication-note": {"source": "People/People Hub.md", "banner-height": 200, "banner-y": 50, "content-start": 101, "scene-shift": 0},
+  "workout-note": {"source": "Wiki/Wiki Hub.md", "banner-height": 200, "banner-y": 50, "content-start": 101, "scene-shift": 0}
+}

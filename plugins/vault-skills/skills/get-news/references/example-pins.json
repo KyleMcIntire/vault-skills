@@ -1,0 +1,5 @@
+{
+  "_comment": "EXAMPLE pins file for --pins: product name (matching a feed's \"product\") to the versions you run and where you found them. Fictional values.",
+  "Argo CD": [{"version": "2.12.3", "where": "acme-infra apps/argocd/Chart.yaml (prod)"}],
+  "Karpenter": [{"version": "1.0.5", "where": "acme-infra addons/karpenter/release.yaml"}]
+}
