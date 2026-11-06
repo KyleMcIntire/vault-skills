@@ -77,7 +77,7 @@ surprised by what Claude changed.
 ![Slide 4](slides/04.jpg)
 
 The numbers come from the vault itself: 2,400+ notes counted live on the Home dashboard, 1,700+ git commits as a backup
-trail, and twenty skills, which this repo ships in [generalised form](../../plugins/vault-skills/skills/). Five things run
+trail, and 21 skills, which this repo ships in [generalised form](../../plugins/vault-skills/skills/). Five things run
 on a schedule without anyone touching them. It grew one annoyance at a time; the right-hand clip is Obsidian's graph view
 replaying that growth.
 
