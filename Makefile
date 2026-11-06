@@ -18,6 +18,7 @@ test-scripts: ## unit tests for scripts/ (banner tests skip without Pillow and n
 
 test-skills:  ## unit tests that ship inside skills
 	cd $(SKILLS)/learn-preferences && $(PY) -m unittest -q test_collect
+	cd $(SKILLS)/weekly-review && $(PY) -m unittest -q test_gather
 
 test: test-scripts test-skills ## all unit tests
 
