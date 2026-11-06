@@ -75,7 +75,7 @@ Only the owner's own action items are checkboxes. A hub or dashboard usually run
 
 Format: checkbox, one fitting emoji, description, the vault's work tag (`#Work` here; match the vault), `📅 YYYY-MM-DD`. Give absolute dates only. Resolve "tomorrow" or "Friday" against the meeting date. When the meeting set no date, use a reasonable one (end of week) and say so in the reply. Completed tasks get `✅ YYYY-MM-DD` and dropped ones become `- [-] ... ❌ YYYY-MM-DD`; that is the owner's job, not yours.
 
-Do not track other people's action items. Put one in the **Waiting on others** table only when it directly affects the owner: someone owes them something (an answer, a review, a ticket, access), or their own work is blocked until it is done. Team-wide reminders are not waiting on anyone. When nothing qualifies, write one line saying so and set `status: ✅ Closed`; otherwise set `status: ⌛ Waiting on others`.
+Do not track other people's action items. Put one in the **Waiting on others** table only when it directly affects the owner: someone owes them something (an answer, a review, a ticket, access, a briefing), or their own work is blocked until it is done. Leave everything else out of the table; if it matters to the meeting, it is already in Discussion. Team-wide reminders ("everyone add PTO") are not waiting on anyone: if the owner has to act, it is their own task. When nothing qualifies, write one line saying so and set `status: ✅ Closed`; otherwise set `status: ⌛ Waiting on others`.
 
 Escape `|` inside wiki-links in the table; `render_note.py` does it for `{{ref}}` placeholders automatically.
 
@@ -105,4 +105,5 @@ The `:Tw...:` shortcodes are Iconize icons; if the vault does not use Iconize, u
 
 - Confirm the owner is linked: `grep -nw <FirstName> <note>` should show only wiki-link forms, and the render output's `left plain` list should hold only `Unidentified` or generic labels.
 - Run the vault's checker if it has one (for example `python3 scripts/check_vault.py`); only new findings are yours.
+- Don't run `git` against the vault from a Linux sandbox that mounts it: the mount can't remove `.git/index.lock`, and a leftover lock blocks the vault's git plugin. If git is needed, run it on the host.
 - Do not stage, commit or push. Do not touch `.obsidian/` or other notes beyond the one log entry.

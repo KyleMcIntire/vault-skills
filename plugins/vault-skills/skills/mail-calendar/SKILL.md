@@ -54,7 +54,7 @@ Where `outlook_link` is present, use it as the `[invite](...)` or `[email](...)`
 ## When it fails
 
 - `no '<calendar>' calendar in the '<store>' store`: wrong `--account-store` or `--calendar`, or the account was removed. Ask the user to check Internet Accounts.
-- `not found: ...Envelope Index` or a permission error: the app running Claude lacks Full Disk Access, or Mail.app has never run. The fix is System Settings, Privacy and Security, Full Disk Access, for the terminal or editor that runs Claude.
+- `not found: ...Envelope Index` or a permission error: the app running Claude lacks Full Disk Access, or Mail.app has never run. The fix is System Settings, Privacy and Security, Full Disk Access, for the terminal or editor that runs Claude. Full Disk Access is granted per app: a terminal can have it while an editor's integrated terminal does not, so check the app that actually launches Claude.
 - Missing recent mail or meetings: Mail or Calendar hasn't synced. The data is only as fresh as their last sync; say when the newest item looks stale.
 - A SQL error after a macOS update: Apple changed its private schema. Report the error; don't guess the data.
 

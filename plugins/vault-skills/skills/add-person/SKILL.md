@@ -5,13 +5,13 @@ description: Add a new person note to the vault's people folder with the right s
 
 # Add a person
 
-One note per person under `<folders.people>/<Group>/<Name>.md`. Get the folder, frontmatter and photo right with as few questions as possible.
+One note per person under `<folders.people>/<Group>/<Name>.md`. Get the folder, frontmatter and photo right with as few questions as possible. A People view Base (or similar) can show every note tagged `person` as a card, using the `image` property as the photo.
 
 `SKILL_DIR` is this skill's base directory, as given when the skill loads.
 
 ## 0. Configuration
 
-Read `.vault-skills.yaml` at the vault root (see `docs/CONFIG.md`) and the vault's own `CLAUDE.md`. This skill uses `folders.people`, `folders.templates`, `templates.person`, `owner.name`, and optionally `integrations.slack` and `integrations.catalog`. If a needed value is missing, ask once and offer to write the answer into the file. The attachment folder for photos is `Media/Attachments` unless the vault says otherwise.
+Read `.vault-skills.yaml` at the vault root (see `docs/CONFIG.md`) and the vault's own `CLAUDE.md`. This skill uses `folders.people`, `folders.templates`, `templates.person`, `owner.name`, and optionally `integrations.slack` and `integrations.catalog`. If a needed value is missing, ask once and offer to write the answer into the file. The attachment folder for photos is `folders.attachments` (default `Media/Attachments`); pass it to `fetch_avatar.py` as `--attachments`.
 
 ## 1. Work out who and where
 
@@ -42,19 +42,19 @@ If a note exists, switch to **update mode**: fill empty fields and add the photo
 Only when a Slack connector is available (for example a Slack MCP server) and the person is a coworker or the user asked for a photo. Skip it for friends, family and doctors unless asked, and say in the report if the connector is missing.
 
 1. Search users with the name as separate words (`keywords: ["First", "Last"]`); quoted full names often fail. Retry with just the last name or the email. The search result, not the profile read, is where a profile-picture URL appears.
-2. If several people match, take the exact name match. If still ambiguous, ask the user with the answer picker, offering each candidate's title and email.
-3. Keep the user ID, title, email, timezone, pronouns, photo URL and permalink. Use the Slack spelling for the note name unless the user gave another.
+2. If several people match, take the exact name match. If it is still ambiguous, prefer the candidate who shares meetings or mail with the owner (use the mail-calendar skill if available), then ask with the answer picker, offering each candidate's title and email.
+3. Keep the user ID, title, email, timezone, pronouns, photo URL and permalink. Use the Slack spelling for the note name unless the user gave another. Optionally read the full profile for pronouns and phone; search results, not profile reads, carry the photo URL.
 
 If mail or calendar tools are available (see `/vault-skills:mail-calendar`), a person outside the Slack workspace can be looked up there, read-only, for the spelling of their name and their email. Skip otherwise.
 
 ### Optional: team from a service catalog
 
-If `integrations.catalog` is configured and its tools are connected (Backstage or similar), look the person up by email, read the teams they belong to, keep real teams (not virtual or deactivated groups), and ask for only the fields you need. Never claim someone reports to a team's manager: a catalog rarely has reporting lines. If the catalog is not configured or not connected, skip this and say so.
+If `integrations.catalog` is configured and its tools are connected (Backstage or similar), look the person up by email, read the teams they belong to, keep real teams (not virtual or deactivated groups), and ask for only the fields you need. No match is normal for people outside engineering. A `spec.manager` equal to the person's own user name means they manage that team. For someone on several teams, use the one they manage, else the first listed, and name the others in the report. Never claim someone reports to a team's manager: a catalog rarely has reporting lines. If the catalog is not configured or not connected, skip this and say so.
 
 ## 3. Save the photo (optional)
 
 ```bash
-python3 -I SKILL_DIR/scripts/fetch_avatar.py "<Note Name>" "<profile pic URL>" --vault "<vault>" --attachments "Media/Attachments"
+python3 -I SKILL_DIR/scripts/fetch_avatar.py "<Note Name>" "<profile pic URL>" --vault "<vault>" --attachments "<folders.attachments>"
 ```
 
 It saves `<attachments>/<Note Name> (Slack).<ext>` scaled to 512px and prints `LINK: [[...]]`; use that link exactly.
@@ -72,9 +72,10 @@ Read `<folders.templates>/<templates.person>` first and follow it: the same fron
 
 - Body: copy the template body below the frontmatter. If it has a profile-card block, a Together section or a Meetings callout, keep them for work people and delete the Meetings callout for friends, family and doctors, as the template's comments say.
 - Slack facts (role, handle link, timezone, pronouns) go under the Notes heading as bullets, using the labels the template or neighbouring notes use. Add a **Team** bullet when the catalog found one.
+- The profile card shows the `image` photo, so do not add a separate photo embed. It also reads the Role, Team, Slack, Timezone and Pronouns bullets under Notes, so keep those labels exactly. Replace the Overview callout's placeholder with one sentence built from what you know (for example `Director, Software Engineering, and Sam's manager.`), or drop the callout if you know nothing yet.
 - `role`/`team` values: reuse a value neighbouring notes already have, say you inferred it, or leave it empty.
 - Do not invent details. A temporary Slack status such as "On PTO" is left out.
-- `location`: use what the user gives. For Slack lookups you may guess a broad region from the timezone (never a specific office) and must say it was guessed. Leave it empty otherwise.
+- `location`: use what the user gives. For Slack lookups, guess a broad region from the timezone (`America/New_York` to `Eastern US`, `America/Chicago` to `Central US`, `America/Denver` to `Mountain US`, `America/Los_Angeles` to `Pacific US`, `Europe/London` to `United Kingdom`; any other zone to its country). Never guess a specific office, and say in the report that it was guessed. Leave it empty for non-Slack people unless told.
 
 **Writing:** if an Obsidian MCP server is connected, create the note through it and open it; otherwise use the file tools, then open it with the Obsidian CLI if available. Use the filesystem for the photo either way. Re-read the target right before editing.
 
@@ -82,6 +83,6 @@ Read `<folders.templates>/<templates.person>` first and follow it: the same fron
 
 ## 5. Check and report
 
-Run the vault checker if there is one (`make check`, or `python3 scripts/check_vault.py`); it is read-only. Then report in a sentence or two: the note path and folder, whether a photo was saved (and offer `/vault-skills:vault-image-icon` to turn it into a file icon if that skill is installed), which fields came from Slack or the catalog, and anything you guessed.
+Run the vault checker if there is one (`make check`, or `python3 scripts/check_vault.py`); it is read-only. Then report in a sentence or two: the note path and folder, whether a photo was saved (and offer `/vault-skills:vault-image-icon` to turn it into a file icon if that skill is installed), which fields came from Slack and the catalog (or that the catalog was skipped or found nothing), and anything you guessed.
 
 Never stage or commit. Never message anyone.

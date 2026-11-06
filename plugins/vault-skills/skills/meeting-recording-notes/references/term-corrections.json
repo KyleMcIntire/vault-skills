@@ -62,5 +62,101 @@
  [
   "(?i)\\bprometheus\\b",
   "Prometheus"
+ ],
+ [
+  "(?i)\\b(kiberno|kaverno|caverno|kaverna|tyverno)\\b",
+  "Kyverno"
+ ],
+ [
+  "\\bValco\\b",
+  "Falco"
+ ],
+ [
+  "(?i)\\bargon? city\\b",
+  "Argo CD"
+ ],
+ [
+  "(?i)\\bpendant bot\\b",
+  "Dependabot"
+ ],
+ [
+  "(?i)\\bppenth?\\b",
+  "pipenv"
+ ],
+ [
+  "\\bKibara\\b",
+  "Kibana"
+ ],
+ [
+  "(?i)\\bsonar ?(cube|qq)\\b",
+  "SonarQube"
+ ],
+ [
+  "(?i)semigrap",
+  "Semgrep"
+ ],
+ [
+  "(?i)bottle and rocket",
+  "Bottlerocket"
+ ],
+ [
+  "(?i)\\bz ?tunnel\\b",
+  "ztunnel"
+ ],
+ [
+  "(?i)\\byubi ?keys?\\b",
+  "YubiKey"
+ ],
+ [
+  "(?i)\\bsidekick (queue)",
+  "Sidekiq \\1"
+ ],
+ [
+  "(?i)\\bchain ?guards?\\b",
+  "Chainguard"
+ ],
+ [
+  "(?i)\\bwhisper flow\\b",
+  "Wispr Flow"
+ ],
+ [
+  "(?i)\\bgyra\\b",
+  "Jira"
+ ],
+ [
+  "\\bgithub\\b",
+  "GitHub"
+ ],
+ [
+  "\\bgitlab\\b",
+  "GitLab"
+ ],
+ [
+  "\\beks\\b",
+  "EKS"
+ ],
+ [
+  "\\bcve\\b",
+  "CVE"
+ ],
+ [
+  "\\bcves\\b",
+  "CVEs"
+ ],
+ [
+  "\\bdynamodb\\b",
+  "DynamoDB"
+ ],
+ [
+  "\\bsysdig\\b",
+  "Sysdig"
+ ],
+ [
+  "(?i)\\bphips\\b",
+  "FIPS"
+ ],
+ [
+  "(?i)\\blog(?:in|ging) operator\\b",
+  "Logging Operator"
  ]
 ]

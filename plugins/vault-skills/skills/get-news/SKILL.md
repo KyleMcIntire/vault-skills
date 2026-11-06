@@ -2,6 +2,7 @@
 name: get-news
 description: "Gather the news, release notes and security announcements that matter to your work into a digest note and a short chat summary. Reads a configurable list of RSS/Atom feeds (cloud provider announcements, project release feeds, security news), optional Slack announcement and incident channels, ranks security incidents first, optionally compares releases with the versions you pin, and adds a weather summary for your location. Read-only toward everything outside the vault. Use whenever the user asks \"what's new\", \"any news I should know about\", \"catch me up on <topic> news\", for a news or release digest, or what changed upstream this week, even if they don't name this skill."
 argument-hint: "[days to look back, default 7]"
+allowed-tools: Bash(python3 -I *get-news/fetch_news.py*)
 ---
 
 # Get news
@@ -54,15 +55,15 @@ To compare releases with what you run, keep a small JSON file (see [references/e
 
 ## 2. Slack (optional)
 
-Skip this if the session has no Slack connector or `integrations.news_feeds.slack_channels` is empty, and list the skip under **Gaps**. Otherwise load the Slack read tools and read each configured channel with `oldest` set to the window start, a small `limit` and a concise response format. Keep posts that announce something about platforms, deploys, maintenance windows, security or the user's cloud services; ignore chatter and bot noise. Quote sparingly and link each message. If a channel can't be read, list it under **Gaps**. Never post, react or draft.
+Skip this if the session has no Slack connector or `integrations.news_feeds.slack_channels` is empty, and list the skip under **Gaps**. Otherwise load the Slack read and search tools with one `ToolSearch` call. Read each configured channel with `oldest` set to the Unix time at the window start (a channel read returns weeks of posts without it), `limit` 15 and `response_format` "concise". Use each post's own links, since the read gives no permalink, and treat the searches below as the check for anything recent, because a channel read can omit the newest posts. Keep posts that announce something about platforms, deploys, maintenance windows, security or the user's cloud services; ignore chatter and bot noise. Quote sparingly and link each message. If a channel can't be read, list it under **Gaps**. Never post, react or draft.
 
-Then search Slack broadly for incident terms (`incident`, `outage`, `vulnerability`, `CVE`, `breach`, plus the distinctive title of any security story the feeds returned), since an incident can land in a channel that isn't listed. Carry an incident channel's status, actions and open needs into the digest.
+Then search Slack broadly for incident terms (`incident`, `outage`, `vulnerability`, `CVE`, `breach`, `compromise`, plus the distinctive title of any security story the feeds returned), since an incident can land in a channel that isn't listed: one search per term, with `after` set to the window start, `sort` "timestamp", `limit` 10, `response_format` "concise" and `include_context` false. Read an incident channel's status summary with `response_format` "detailed". Carry an incident channel's status, actions and open needs into the digest.
 
 ## 3. Judge
 
 For each item decide whether it matters to the user's work, and say why in a clause. Rank by effect, not date:
 
-0. **Security incidents first**: a CA or signing-key compromise, a supply-chain attack on a package, image or tool the user runs, an exploited or emergency-patched flaw in a runtime, OS package, orchestrator or cloud service they use, and any incident their organization has declared. Security feeds are broad: keep an item only when it touches what the user runs, or when an internal channel is already discussing it. For each: what happened, severity, what to do (patched versions, rebuilds), and open needs. Check `<folders.tasks>/` for a task note already tracking it and link it. An incident that is in the news and in Slack but absent from the digest is the worst miss: when a story appears in several security sources, search Slack for it by name before dropping it.
+0. **Security incidents first**: a CA or signing-key compromise, a supply-chain attack on a package, image or tool the user runs, an exploited or emergency-patched flaw in a runtime, OS package, orchestrator or cloud service they use, and any incident their organization has declared. Security feeds are broad: keep an item only when it touches what the user runs, or when an internal channel is already discussing it. For each: what happened, severity, what to do (patched versions, with the fixed version for the user's base images when the post lists it, and rebuilds), the organization's own incident (ticket, channel, status) if one has been declared, and open needs. Check `<folders.tasks>/` for a task note already tracking it and link it. An incident that is in the news and in Slack but absent from the digest is the worst miss: when a story appears in several security sources, search Slack for it by name before dropping it.
 1. **Acts on something the user runs or pins**: a release of a pinned product, a platform version or deprecation, an image advisory, a change to a service they use. Use `pin_note` to say whether it is a newer patch of a pinned version, a different line, or a newer minor. Read the `excerpt` for breaking changes and security fixes; when it is cut off and matters, fetch the item's link and quote only the relevant lines.
 2. **Compliance or regional scope changes** relevant to the user.
 3. **Slack announcements** touching the platform or deploys: rank by effect.
@@ -73,15 +74,19 @@ Drop the rest. Separate recorded facts (what the post says, what the pin file sa
 
 ## 4. Write the digest
 
-Create `<folders.news>/YYYY-MM-DD News.md` (today's date) from the vault's template if there is one, otherwise from [references/digest-layout.md](references/digest-layout.md). Resolve template placeholders. If today's note already exists, re-read it and add only new items, keeping the user's edits. Fill the numeric and text properties: `window`, `incidents`, `needs a look`, `summary`, and the weather properties from `weather` for today (leave them empty and say so under **Gaps** if weather failed or was skipped).
+Create `<folders.news>/YYYY-MM-DD News.md` (today's date) from the vault's template if there is one, otherwise from [references/digest-layout.md](references/digest-layout.md). Resolve template placeholders. If today's note already exists, re-read it and add only new items, keeping the user's edits. Fill the numeric and text properties: `window`, `incidents`, `needs a look`, `summary`, and the weather properties from `weather` for today (`conditions`, `high` and `low` as numbers, `rain chance` and `cloud cover` as percent numbers, and `aqi` as the day's peak; leave them empty and say so under **Gaps** if weather failed or was skipped).
 
 - **Security incidents:** one callout per incident (`[!danger]` for one that touches the user's own systems, `[!warning]` otherwise) with bullets for Status, What happened, Fixed versions, Open needs, Sources; leave out a label with nothing to say.
+- **At a glance:** a callout with the counts and one or two sentences on what matters most.
+- **Weather:** one info callout titled with place, conditions, high and low, then **Today**, **Air quality**, **Next two days** and **Alerts**. Put numbers and units in inline code, for example `71°F`.
 - **Needs a look:** one table row per item (Item, Version, Our pin, Why it matters). Version in inline code with its release link; the pin with where it came from; `-` when there is no version.
 - **Worth knowing:** short bullets under a bold lead word, every item with its link.
+- **Local:** short bullets with link, outlet and date, after **Worth knowing**.
 - **Skipped** and **Gaps:** collapsed callouts, links separated by ` · `. Every item you drop as irrelevant goes in **Skipped** as a bare link, because `--seen` only knows links a digest contains.
+- Headings keep the template's icon shortcodes. Leave out an empty section except **Gaps**.
 - Do not put the skill's own history in the digest.
 
-If the vault keeps a news hub or index note, add the new digest to its list, newest first (skip if already listed). Open the new note in Obsidian in a new tab if a tool for that is available. Do not stage, commit or move anything.
+If the vault keeps a news hub or index note, add the new digest to its list, newest first (skip if already listed); Bases draw no graph edges, so this list is what links each digest to the hub. Open the new note in Obsidian in a new tab if a tool for that is available. Do not stage, commit or move anything.
 
 ## 5. Brief in chat
 

@@ -20,6 +20,7 @@ The engine lives in the vault-skills checkout at `scripts/banners/`. Locate it w
 | `pix.py`, `thin_common.py` | Canvas, font, GIF writer, shared set pieces |
 | `render_thin.py` | Renders a module's `SCENES` and writes `<name>.gif`, `<name>-frames.png`, and `crops.png` |
 | `thin_*.py`, `*_hubs.py`, other scene modules | Scene modules; list them with `ls` to see which exist. Each defines a `SCENES` dict |
+| `hub_themes.py`, `recolor_gif.py` | Per-hub wall and wood colour themes so card views tell hubs apart. Add a theme to `THEMES` in `hub_themes.py`; `recolor_gif.py <theme> <in> <out>` recolours an existing GIF with no scene script |
 | `render_note_banners.py`, `note_banner_layouts.json` | A separate engine for note-type banners (module name `note_types`) |
 | `<skill-directory>/scripts/render.sh` | Wrapper: bootstraps a cached Pillow + numpy venv and renders outside the vault |
 | `<skill-directory>/references/style-guide.md` | Canvas, crop-safe zones, palette, composition, animation rules, and API |
@@ -39,8 +40,8 @@ The engine lives in the vault-skills checkout at `scripts/banners/`. Locate it w
    - a size of about 1.2 MB or less
    Fix any problem and render again. Do not show the user a banner you have not looked at.
 6. **Install.** Copy the GIF into the right folder under `folders.banners` with `cp -n`, so an existing file is never silently replaced. Overwriting a GIF that the same task created is fine. Replacing any other existing GIF needs the user's go-ahead.
-7. **Point notes at it.** Change only the `banner:` value in the files confirmed in step 1, including the matching template under `folders.templates` so future notes inherit it. Match nearby notes for the other keys (for example `banner-height`, `banner-y`, `banner-x`, `content-start`). Preserve every other line. On macOS, iterate over files with `while IFS= read -r f`; BSD `grep -Z` does not NUL-separate its output.
-8. **Clean up only when asked.** An old asset is unused only if no note, Base, canvas, CSS, script, or template references it. Generated transcripts and workspace state files do not count as references. Prefer a trash-backed delete over permanent deletion, and update any note that describes the removed path as current. Leave historical records as they are.
+7. **Point notes at it.** Change only the `banner:` value in the files confirmed in step 1, including the matching template under `folders.templates` so future notes inherit it. Match nearby notes for the other keys (for example `banner-height`, `banner-y`, `banner-x`, `content-start`; typical values are `banner-height: 200`, `banner-y: 50`, `banner-x: 50`, `content-start: 101`, and `banner-y: 30` for person notes). Preserve every other line. On macOS, iterate over files with `while IFS= read -r f`; BSD `grep -Z` does not NUL-separate its output.
+8. **Clean up only when asked.** An old asset is unused only if no note, Base, canvas, CSS, script, or template references it. Generated transcripts and workspace state files do not count as references. Prefer a trash-backed delete over permanent deletion (the Obsidian MCP's delete goes to the trash; use the macOS `trash` command for folders), and update any note that describes the removed path as current. Leave historical records as they are.
 9. **Validate and report.** Run the vault's checker if it has one (compare against a baseline), and open one updated note for review. Report the new files and their sizes, the notes and templates changed, check results (including pre-existing warnings), and anything skipped or left for the user.
 
 Do not stage or commit.
