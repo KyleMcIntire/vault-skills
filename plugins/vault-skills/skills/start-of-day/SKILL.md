@@ -2,7 +2,7 @@
 name: start-of-day
 description: Start the workday. Checks the plan that end-of-day left in today's standup note against live state (PRs, review requests, Jira, Slack, mail and calendar, open vault tasks), briefs the owner on today's meetings, what changed overnight and what needs attention first, then, with approval, updates the entry's Today, Blockers and Morning brief, and hands the first item to /vault-skills:work-on. Use whenever the user says "start my day", "good morning", "what's on today", "what should I work on first", "morning brief", or asks what needs their attention this morning, even if they don't name this skill.
 argument-hint: "[YYYY-MM-DD workday to start, default today]"
-allowed-tools: Bash(python3 -I *end-of-day/gather.py*), Bash(grep -rn --include=*.md*), Bash(acli jira workitem view*), Bash(acli jira workitem search*), Bash(gh pr view*), Bash(gh pr list*)
+allowed-tools: Bash(python3 -I *end-of-day/gather.py*), Bash(grep -rn --include=*.md*), Bash(acli jira workitem view*), Bash(acli jira workitem search*), Bash(gh pr view*), Bash(gh pr list*), mcp__plugin_slack_slack__slack_search_public_and_private, mcp__plugin_slack_slack__slack_read_thread, mcp__plugin_slack_slack__slack_read_channel
 ---
 
 # Start of day
@@ -11,7 +11,7 @@ Get the owner from "just sat down" to working on the right thing. `/vault-skills
 
 ## Configuration
 
-Read `.vault-skills.yaml` from the vault root first (see the plugin's `docs/CONFIG.md`), and the vault's own `CLAUDE.md`, which overrides this skill. If a needed value is missing, ask once and offer to save it into the file; never guess. Keys used here: `owner.name`, `folders.meetings`, `folders.tasks`, `folders.templates`, `folders.scratch`, `templates.*`, `integrations.jira.site`, `.project_keys`, `.cli`, `integrations.github.org`, `.user`, `integrations.slack.*`, `integrations.calendar_mail.provider`.
+Read `.vault-skills.yaml` from the vault root first (see the repo's `docs/CONFIG.md`), and the vault's own `CLAUDE.md`, which overrides this skill. If a needed value is missing, ask once and offer to save it into the file; never guess. Keys used here: `owner.name`, `folders.meetings`, `folders.tasks`, `folders.templates`, `folders.scratch`, `templates.*`, `integrations.jira.site`, `.project_keys`, `.cli`, `integrations.github.org`, `.user`, `integrations.slack.*`, `integrations.calendar_mail.provider`.
 
 - Standup note: `<folders.meetings>/Recurring/Standup/YYYY-MM-DD <standup title>.md`, one note per day. Ask once for the standup title (for example "Team Standup") if the vault has none and the folder is empty. Any index note that lists standups is not edited.
 - Day gatherer: `<plugin skills dir>/end-of-day/gather.py`, read-only. Run on today's date in the morning it gives the owner's open PRs, review requests, open Jira issues and today's standup entry. See that skill for its flags.
@@ -41,8 +41,10 @@ python3 -I <skills-dir>/end-of-day/gather.py --date <workday> --since <previous 
 Meetings for the workday (including declined) and unread mail since the previous workday, through `/vault-skills:mail-calendar`.
 
 ```bash
-grep -rn --include='*.md' -E '^\s*- \[[ /]\]' <vault>/<folders.tasks> <vault>/<folders.meetings> <vault>/<folders.projects>
+grep -rn --include='*.md' --exclude-dir=<folders.wiki> --exclude-dir=Archive -E '^\s*- \[[ /]\]' <vault>/<folders.tasks> <vault>/<folders.meetings> <vault>/<folders.projects>
 ```
+
+Drop the `--exclude-dir=<folders.wiki>` flag if `folders.wiki` is unset.
 
 Then `Read` the JSON file. A section that failed holds `{"error": ...}`: report it under **Gaps** and carry on. What matters from it:
 

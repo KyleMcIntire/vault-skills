@@ -11,7 +11,7 @@ Brief the owner on one piece of work so they can start, or restart, without hunt
 
 ## Configuration
 
-Read `.vault-skills.yaml` from the vault root first (see the plugin's `docs/CONFIG.md`; the vault root is the nearest parent holding `.vault-skills.yaml`, else `.obsidian/`). Also read the vault's own `CLAUDE.md`, which overrides this skill. If a value you need is missing, ask once and offer to save the answer into the file. Never guess one. Keys used here:
+Read `.vault-skills.yaml` from the vault root first (see the repo's `docs/CONFIG.md`; the vault root is the nearest parent holding `.vault-skills.yaml`, else `.obsidian/`). Also read the vault's own `CLAUDE.md`, which overrides this skill. If a value you need is missing, ask once and offer to save the answer into the file. Never guess one. Keys used here:
 
 - `owner.name`, `owner.note`: who the briefing is for.
 - `folders.tasks`, `folders.meetings`, `folders.projects`, `folders.wiki`, `folders.scratch`, `templates.task`, `task_statuses.*`.
@@ -60,17 +60,18 @@ python3 -I <skill-directory>/gather.py <KEY> --vault <vault> --org <integrations
 - `standup`: the newest standup entries that name the key, as the bullets that mention it, with the section they sit in (Yesterday, Today, Blockers).
 - `github_prs`: PRs that name the exact key in the title, body, or branch, with branch, head, review decision, merge state, check counts, pending reviewers, and size. Each also carries:
   - `reviewed` and `last_review`, the latest review by someone other than the PR author (or a review-bot "finished" comment), and `commits_after_last_review`, the commits no reviewer has seen.
-  - `reviewed_commit_rewritten`: true when the reviewed commit is no longer in the PR (amended, rebased, or force-pushed away), so `commits_after_last_review` may be a rewrite of reviewed code, not new work. `rewrite_diff` then compares the two: `dropped_since_review` and `added_since_review` are the files the reviewed version changed that the head does not, and the reverse; `line_counts_changed` lists files in both whose line counts differ; `identical_net_change` is true when the head changes the same files by the same amounts. `null` means the review named no commit.
+  - `reviewed_commit_rewritten`: true when the reviewed commit is no longer in the PR (amended, rebased, or force-pushed away), so `commits_after_last_review` may be a rewrite of reviewed code, not new work. `rewrite_diff` then compares the two: `dropped_since_review` and `added_since_review` are the files the reviewed version changed that the head does not, and the reverse; `line_counts_changed` lists files in both whose line counts differ; `identical_net_change` is true when the head changes the same files by the same amounts. `null` means the review named no commit (a clean re-review leaves only a comment).
   - `review_checks`, the review-like checks with their run time in seconds. A few seconds means the review job was skipped, not that the code was reviewed.
   - `failing_checks`, each failed check with its annotations (a static-analysis rule, file and line come through here), and `unresolved_threads` with who spoke last, for open PRs.
 - `local_branches`: local clones with a branch named after the key, plus uncommitted files and stashes.
 
-**If `vault.task_notes` is empty, a task note has to be made.** Prefer a Jira sync skill if the vault has one (for example `/vault-skills:jira-to-obsidian-sync`): it needs a Jira connector and never writes to Jira. Run it with the `Skill` tool, then re-run the gatherer and check that `vault.task_notes` has one entry. If the vault has no sync, or it cannot run, create the note yourself from the `jira` section:
+**If `vault.task_notes` is empty, a task note has to be made.** Prefer a Jira sync skill if the vault has one (for example `/vault-skills:jira-to-obsidian-sync`): it needs a Jira connector and never writes to Jira. First check it can run: load the Jira search tool with `ToolSearch`; if no connector is available, skip straight to the manual note below. If the vault's sync has a force list (a `forceKeys`-style escape hatch in its state note), add the key to it first, re-reading the line and keeping existing keys, and put the key back out if the sync did not consume it. Run it with the `Skill` tool, then re-run the gatherer and check that `vault.task_notes` has one entry. If the vault has no sync, or it cannot run, create the note yourself from the `jira` section:
 
 - Start from `<folders.templates>/<templates.task>` if it exists, else match a nearby task note's frontmatter. Resolve placeholders using the issue's title and today's date; do not guess missing fields.
 - Put it in `<folders.tasks>/` (in the sub-folder for its status when the vault sorts by status, using `task_statuses`), with `url` set to the issue URL, the H1 and description from Jira, a `Work-log` scaffold, and Jira keys as links.
 - Obsidian forbids `" * \ / < > : | ?` in a filename: replace or drop them and keep the original summary in the H1.
 - Say in the briefing and in the note's first work-log entry that it was written by hand, not synced.
+- The scheduled sync reconciles the note by `url` on its next run only if the issue matches its query (for example `assignee = currentUser()`). For an unassigned issue, say that later Jira comments will not reach the note, and offer to add the key to the sync's force list if the vault has one.
 - Look at sibling notes for `parent` and `project` values; do not invent them.
 
 If several notes match, prefer the one whose filename matches the Jira summary, and mention the duplicates. If `jira` itself failed, stop and report it; don't make a note from nothing.
@@ -145,7 +146,7 @@ Write the briefing in chat, in this order. Keep it to one screen where you can; 
 
 **Open questions.** Only real unknowns, or contradictions between sources.
 
-**Suggested setup.** Model, effort, and subagents for the session, each with a one-clause reason drawn from the gathered context.
+**Suggested setup.** Where to build, model, effort, and subagents for the session, each with a one-clause reason drawn from the gathered context.
 
 **Context.** Links: related tasks and notes, Slack threads, Confluence pages, Jira links, prior art.
 
@@ -159,7 +160,8 @@ Rules for the content:
   - Number the code blocks in run order, with a short bold label saying what each does and what a pass looks like. Bundle related, safe steps into one `&&` chain (never `;`) or a loop. Give a step its own block when its output must be checked first, when it changes something or is hard to undo, when it waits for input, or when it runs on a different machine. Never stack separate commands in one block.
 - **Check that a step can run where it has to.** For a step in a restricted environment (a locked-down network, a separate account or boundary), check that the code and prerequisites exist there before proposing it, and treat a note's claim about what an environment can do as a lead to confirm. If you can't confirm it, say so in the step. If the vault's `CLAUDE.md` names environments you cannot reach, give the commands for the owner to run instead of trying.
 - **Check pinned image tags are still maintained.** When the work pins a container image tag, compare the pin with the newest tags in the registry (if reachable) and flag a stale pin or end-of-life stream in **Do next**.
-- **Suggested setup** is a judgment from what the gathering found, not from the ticket type. Always give all three, one line each; the user sets them with `/model` and `/effort`.
+- **Suggested setup** is a judgment from what the gathering found, not from the ticket type. Always give all four, one line each, and say it is a judgment; choose before starting, because switching mid-session wastes the cache; the user sets them with `/model` and `/effort`.
+  - **Where to build:** hand off to a delegated or background agent when the repo is established, the change extends an existing pattern, it fits one PR, and acceptance criteria exist or can be written. Work locally for a new or shifting design, work with no acceptance criteria, anything needing secrets, customer or personnel data, restricted-environment steps, and steps that wait on long CI or a deploy. Say "plan here, then delegate" when the session's job is to write the plan.
   - **Model:** a smaller, faster model for routine, well-specified work (a version bump, a config change that copies a prior task, babysitting a PR); the strongest available for ambiguous design, unfamiliar systems, security-sensitive changes, or debugging with no known cause.
   - **Effort:** low or medium when steps are mechanical and the fix is known; high when the cause is unknown, several systems interact, or a mistake is costly or hard to undo (production, shared environments); the top levels only for open-ended design or a hard investigation.
   - **Subagents:** yes when the work splits into independent read-only parts (searching several repos, auditing many files) or a large search would flood the context; no for one small edit, tightly sequential work, or shared state where parallel writers would conflict. Name the parts. Keep edits in one agent.

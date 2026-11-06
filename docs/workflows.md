@@ -38,7 +38,7 @@ The loop is deliberately boring. The value is that each step reads what the last
 
 ## The weekly review
 
-Once a week, in a weekly-review note kept beside the daily notes:
+Once a week, in a weekly-review note kept beside the daily notes (`/vault-skills:weekly-review` gathers the week's PRs, issues, standups, meetings and tasks, drafts the note and a shareable roundup, and asks which priorities to turn into tasks):
 
 1. Read the week's daily notes and meeting notes; move loose ideas into records.
 2. Clear the **Task inbox**: every open task gets a date, a project, or a cancel (`❌` with the date).

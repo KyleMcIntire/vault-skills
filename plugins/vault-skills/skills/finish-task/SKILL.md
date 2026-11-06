@@ -41,6 +41,7 @@ Save what a future session would need and cannot get from the repo or the rules 
 
 - Collect only real open items: work left unfinished, things blocked on the user or another machine, decisions they deferred, and verification they need to do. Never invent owners, deadlines or completion states.
 - Add each as a task under the task-inbox heading of today's daily note (`<folders.daily>/YYYY-MM-DD.md`, or the path the Obsidian CLI's `daily:path` prints). If the note does not exist, create it from `templates.daily` in `<folders.templates>`. If the daily template has no inbox heading, match nearby daily notes rather than inventing one. Format: `- [ ] <action> #<tag>` with a wiki-link to the tracking note or source when there is one, and `📅 YYYY-MM-DD` only when a date was stated. Use the work or personal tag the vault already uses. Search the inbox and the tracking note first to avoid duplicates.
+- If the vault has a hand-off skill for a coding agent, offer it for well-defined unfinished work (clear acceptance criteria, one PR, nothing needing secrets) before filing a task, and say why it qualifies.
 - Follow-ups about a skill or automation also go in that tracking note's follow-up section.
 
 ## 5. Commit, with approval
@@ -48,7 +49,7 @@ Save what a future session would need and cannot get from the repo or the rules 
 Never stage, commit or push unless the user asks; if `safety.never_commit` is true, only offer. Show the user the files and the commit message, then commit only after they say yes. Push only after a separate yes.
 
 - Commit by explicit path, never `git add -A`, if the vault's rules file warns about files that exist on one machine only.
-- If the vault has a backup command in its rules file (for example `make backup`), mention it as an option, and run it only when asked. Pull first if another machine has pushed.
+- If the vault has a backup command in its rules file (for example `make backup`), mention it as an option, and run it only when asked. Pull first if another machine has pushed. If the backup command takes its message from an environment variable, pass it that way so multi-line messages and `$` survive.
 - End the message with the attribution line the session's instructions give, if any.
 
 ## 6. Report

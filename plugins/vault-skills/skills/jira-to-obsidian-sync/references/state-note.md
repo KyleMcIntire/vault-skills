@@ -1,7 +1,8 @@
 # State note layout
 
-Location: `<folders.tasks>/.sync-state.md` (or wherever the vault says). Create it on the first
-(bootstrap) run, then keep exactly this shape. Example values are fictional.
+Location: `<folders.tasks>/Jira Sync State.md` (or wherever the vault says). It is a visible note so Obsidian, its
+CLI and its MCP can open, link and patch it; older vaults may still hold a hidden `<folders.tasks>/.sync-state.md`,
+which the skill migrates on the next run. Create it on the first (bootstrap) run, then keep exactly this shape. Example values are fictional.
 
 ```markdown
 ---

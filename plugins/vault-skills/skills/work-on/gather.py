@@ -44,7 +44,7 @@ def find_vault():
 
 
 KEY_RE = re.compile(r"^[A-Z][A-Z0-9]+-\d+$")
-SKIP_DIRS = {".obsidian", ".trash", ".git", ".claude", "node_modules"}
+SKIP_DIRS = {".obsidian", ".trash", ".git", ".claude", ".smart-env", "node_modules"}
 VIEW_FIELDS = ("summary,status,description,comment,assignee,reporter,created,updated,"
                "issuetype,priority,labels,parent,subtasks,issuelinks")
 

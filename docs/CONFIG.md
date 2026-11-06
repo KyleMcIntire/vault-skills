@@ -106,6 +106,8 @@ people:
 safety:
   never_commit: true           # skills never stage, commit or push unless you ask
   redact_identifiers: []       # patterns (e.g. "CVE-\\d{4}-\\d+") to replace with labels in outbound drafts
+  sensitive_dirs: []           # vault folders weekly-review never interprets or shares (e.g. "Health")
+  sensitive_tags: []           # tags marking sensitive tasks (e.g. "#Health")
 ```
 
 ## Rules every skill follows

@@ -12,7 +12,7 @@ Wrap up the owner's workday in three passes: check the day's PRs and Jira issues
 
 ## Configuration
 
-Read `.vault-skills.yaml` from the vault root first (see the plugin's `docs/CONFIG.md`), and the vault's own `CLAUDE.md`, which overrides this skill. If a needed value is missing, ask once and offer to save it into the file; never guess. Keys used here: `owner.name`, `folders.meetings`, `folders.tasks`, `folders.daily`, `folders.templates`, `folders.scratch`, `templates.*`, `integrations.jira.site`, `.project_keys`, `.cli`, `integrations.github.org`, `.user`, `integrations.slack.*`, `integrations.calendar_mail.provider`, `safety.redact_identifiers`.
+Read `.vault-skills.yaml` from the vault root first (see the repo's `docs/CONFIG.md`), and the vault's own `CLAUDE.md`, which overrides this skill. If a needed value is missing, ask once and offer to save it into the file; never guess. Keys used here: `owner.name`, `folders.meetings`, `folders.tasks`, `folders.daily`, `folders.templates`, `folders.scratch`, `templates.*`, `integrations.jira.site`, `.project_keys`, `.cli`, `integrations.github.org`, `.user`, `integrations.slack.*`, `integrations.calendar_mail.provider`, `safety.redact_identifiers`.
 
 - Standup notes: one per day, `<folders.meetings>/Recurring/Standup/YYYY-MM-DD <standup title>.md`. Ask once for the title if unknown. Never edit an index note listing them.
 - Jira: the CLI in `integrations.jira.cli`. The gatherer and the posting commands below assume `acli` (`acli jira workitem …`). If `acli jira auth status` fails, ask the owner to run `! acli jira auth login --web`; don't fall back to curl. With `jira-cli`, the gatherer's `jira` section will report an error: read and post through `jira issue view/comment add/edit` instead, with the same draft-and-approve flow.
@@ -31,7 +31,7 @@ python3 -I <skill-directory>/gather.py --vault <vault> --org <integrations.githu
   --standup-template <folders.templates>/<standup template> > "$CLAUDE_JOB_DIR/tmp/end-of-day.json"
 ```
 
-Arguments: "$ARGUMENTS". If that holds a date, add `--date YYYY-MM-DD` so a missed day can be wrapped up the next morning. Leave out flags whose value is unknown. Optional: `--hub-link <text>` (the line after which the owner's entry starts in a standup note, for example a link to a meeting hub) and `--entry-heading "<exact H2>"` (the section holding the owner's entry in notes made from a recording); without them the entry starts after the note's H1. `--no-sessions` skips reading local Claude Code session prompts, which are otherwise used as leads. Then `Read` the JSON file. If `$CLAUDE_JOB_DIR` is unset, use `<vault>/<folders.scratch>/` for it and for the scratch files in step 5. The script is read-only and takes about 30 seconds. Any section that failed holds `{"error": ...}`. Report it, carry on with the other sources, and never guess at missing data.
+Arguments: "$ARGUMENTS". If that holds a date, add `--date YYYY-MM-DD` so a missed day can be wrapped up the next morning. Leave out flags whose value is unknown. Optional: `--standup-dir <vault-relative folder>` (overrides the default `<folders.meetings>/Recurring/Standup` when standups live elsewhere), `--hub-link <text>` (the line after which the owner's entry starts in a standup note, for example a link to a meeting hub) and `--entry-heading "<exact H2>"` (the section holding the owner's entry in notes made from a recording); without them the entry starts after the note's H1. `--no-sessions` skips reading local Claude Code session prompts, which are otherwise used as leads. Then `Read` the JSON file. If `$CLAUDE_JOB_DIR` is unset, use `<vault>/<folders.scratch>/` for it and for the scratch files in step 5. The script is read-only and takes about 30 seconds. Any section that failed holds `{"error": ...}`. Report it, carry on with the other sources, and never guess at missing data.
 
 What's in it:
 
@@ -44,9 +44,9 @@ What's in it:
 - `task_notes_by_key`: Jira key to task note and a ready-made `wikilink`. Issues created today usually have no note yet, because the Jira sync only creates one when it has run.
 - `vault_tasks_completed_today`, `task_notes_touched_today`, `claude_sessions_today`: hints for work that leaves no PR or Jira trace. Treat sessions as leads only; confirm from another source before claiming anything, and ignore personal or vault-maintenance sessions.
 
-Then check the next standup day against the calendar (via `/vault-skills:mail-calendar`: meetings for that date, including declined):
+Then check the next standup day against the calendar (via `/vault-skills:mail-calendar`: run `meetings --day <date> --include-declined --all-calendars`; `--all-calendars` is needed to see holiday and out-of-office events that live in the other calendars):
 
-- If that day has an all-day out-of-office or holiday event, or no meeting whose title contains "standup", tell the owner and propose the next day that has one (search the following seven days). Use their answer as the entry's date.
+- If that day has an all-day out-of-office or holiday event, or no meeting whose title contains "standup", tell the owner and propose the next day that has one (search the following seven days with `meetings --day <date> --days 7 --search <standup title>`). Use their answer as the entry's date.
 - Keep the meeting list for the **Today** section and the report: meetings the owner must prepare for, and invites with `my_response` `no response` or `tentative`.
 
 ## 2. Build the day's picture
@@ -80,7 +80,7 @@ Check each **Jira issue** in `touched_today`, plus any key behind a PR active to
 
 ### Writing style
 
-Before the first draft, load `/vault-skills:draft-in-voice` with the `Skill` tool if it is installed and follow its voice and linking rules. Its draft-only rule doesn't apply here: step 4 still asks, and step 5 posts only what is picked. Match the owner's existing comments and descriptions (read a recent one from the same issue when unsure). Use short, plain, past-tense sentences. Lead with what changed and where it stands, and give concrete numbers (test counts, environment names, SHAs). No filler, no headings for short comments, no "As discussed" or summaries of the obvious.
+Before the first draft, load `/vault-skills:draft-in-voice` with the `Skill` tool if it is installed and follow its voice and linking rules. Its draft-only rule doesn't apply here: step 4 still asks, and step 5 posts only what is picked. The format rules below win where the two differ. Match the owner's existing comments and descriptions (read a recent one from the same issue when unsure). Use short, plain, past-tense sentences. Lead with what changed and where it stands, and give concrete numbers (test counts, environment names, SHAs). No filler, no headings for short comments, no "As discussed" or summaries of the obvious.
 
 If `safety.redact_identifiers` lists patterns, replace matching identifiers in anything outward-facing with neutral labels (for example `ID-HIGH-1`) and keep the real identifiers only in the vault.
 

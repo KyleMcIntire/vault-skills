@@ -16,9 +16,9 @@ Read `.vault-skills.yaml` at the vault root (see `docs/CONFIG.md`). Ask once, an
 | --- | --- | --- |
 | Announcement channel | `integrations.slack.announce_channel` | resolve its ID with a channel search |
 | GitHub org (optional) | `integrations.github.org` | only to recognise PR URLs |
-| Slack user ID of the owner | `integrations.slack.user_id` (**not yet in CONFIG.md**) | look it up with a user search by `owner.name` if absent |
-| Merged emoji name | `integrations.slack.merged_emoji` (**not yet in CONFIG.md**) | default `merged`; check it exists with an emoji search; names go to the API without colons |
-| Optional second rule | `integrations.slack.second_reaction` (**not yet in CONFIG.md**) | see "Optional second rule" below; skipped when absent |
+| Slack user ID of the owner | `integrations.slack.user_id` | look it up with a user search by `owner.name` if absent |
+| Merged emoji name | `integrations.slack.merged_emoji` | default `merged`; check it exists with an emoji search; names go to the API without colons |
+| Optional second rule | `integrations.slack.second_reaction` | see "Optional second rule" below; skipped when absent |
 
 Tools: a Slack connector (search messages, get reactions, read thread, add reaction) and the `gh` CLI. Tools may be deferred; load them with one tool-search call. If there is no Slack connector, say so and stop.
 
@@ -28,7 +28,7 @@ Tools: a Slack connector (search messages, get reactions, read thread, add react
 
 ## 1. Find the announcements
 
-Search Slack with `in:<channel> from:<owner> after:<YYYY-MM-DD>` (the day before the look-back window starts), sorted by timestamp, without context. Keep only top-level posts: those with no `thread_ts`, or whose `thread_ts` equals their own `message_ts`. Thread replies are not announcements.
+Search Slack with `in:<channel> from:<owner> after:<YYYY-MM-DD>` (the day before the look-back window starts), sorted by timestamp, without context. Keep only top-level posts: those with no `thread_ts`, or whose `thread_ts` equals their own `message_ts` (the permalink shows it). Thread replies are not announcements.
 
 From each post, take every PR or merge-request URL:
 
@@ -56,12 +56,13 @@ A short table: post time, PR link, merged reaction (added, already there, or not
 
 ## Optional second rule (off unless configured)
 
-Some teams want a second reaction meaning "this change has also reached some other environment" (a restricted network, a mirror, a second repository host). This is entirely user-defined; the skill ships no rule. If `integrations.slack.second_reaction` is configured, it has an emoji name and a table of repositories like this (fictional example):
+Some teams want a second reaction meaning "this change has also reached some other environment" (a restricted network, a mirror, a second repository host). This is entirely user-defined; the skill ships no rule. If `integrations.slack.second_reaction` is configured, it holds an emoji name and a table of repositories like this (fictional example); the default `[]` in `docs/CONFIG.md` means the rule is off:
 
 | Repo | How it reaches the other environment | When to add the second emoji |
 | --- | --- | --- |
 | `acme/tools` | Mirror tracks `main` directly | When the PR is merged |
 | `acme/service` | Needs a separate promotion step | Only once the user or a note confirms the promotion |
+| A merge request on the other environment's own host | It is the change there | Never; the merged emoji already says it |
 | Anything else | Unknown | Skip, and list the repo in the report |
 
 Apply it only on the stated evidence. When unsure, leave the second emoji off and report it: a missing reaction costs less than one that claims something untrue. When the user corrects the table, update it in the config.
