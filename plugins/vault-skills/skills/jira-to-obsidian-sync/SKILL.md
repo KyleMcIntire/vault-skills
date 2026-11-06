@@ -27,7 +27,7 @@ Read `.vault-skills.yaml` at the vault root (see the plugin's `docs/CONFIG.md`) 
 Derived paths (all vault-relative):
 
 - Task root: `<folders.tasks>/`
-- State note: `<folders.tasks>/.sync-state.md` unless the vault says otherwise. Layout: [references/state-note.md](references/state-note.md).
+- State note: `<folders.tasks>/Jira Sync State.md` unless the vault says otherwise. It is a visible note on purpose: Obsidian and its CLI and MCP do not index dot-files, so a hidden state note could not be opened, linked or patched through them. An older vault may hold `<folders.tasks>/.sync-state.md`; see Step 0. Layout: [references/state-note.md](references/state-note.md).
 - Status folders: `<folders.tasks>/<status value>/`
 
 Rules that apply the whole run:
@@ -65,7 +65,7 @@ If neither works, report that and stop without touching the state note. If `acli
 
 ## Step 0: Read the state note
 
-Read the state note. It holds `watermark` (newest Jira `updated` already processed), `forceKeys` (keys to reconcile regardless; add any keys the user passed as arguments), a **Fingerprints** table (`key | jira status | updated | comments | note`, the change-detection cache and the authoritative key-to-note map), **Known noise projects**, **Ambiguous key to note mappings**, and **Open follow-ups**. Carry follow-ups forward verbatim unless resolved; report them, never act on them.
+Read the state note. If `Jira Sync State.md` is missing but a legacy `<folders.tasks>/.sync-state.md` exists, read the legacy file, write its content to `Jira Sync State.md` with the same layout, and tell the user the old file can be deleted; never delete it yourself. It holds `watermark` (newest Jira `updated` already processed), `forceKeys` (keys to reconcile regardless; add any keys the user passed as arguments), a **Fingerprints** table (`key | jira status | updated | comments | note`, the change-detection cache and the authoritative key-to-note map), **Known noise projects**, **Ambiguous key to note mappings**, and **Open follow-ups**. Carry follow-ups forward verbatim unless resolved; report them, never act on them.
 
 **If the note is missing or `watermark` is blank, this is a bootstrap run**: use the fallback queries in Step 1b and create the note from [references/state-note.md](references/state-note.md).
 
