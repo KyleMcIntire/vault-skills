@@ -19,6 +19,7 @@ test-scripts: ## unit tests for scripts/ (banner tests skip without Pillow and n
 test-skills:  ## unit tests that ship inside skills
 	cd $(SKILLS)/learn-preferences && $(PY) -m unittest -q test_collect
 	cd $(SKILLS)/weekly-review && $(PY) -m unittest -q test_gather
+	cd $(SKILLS)/vault-image-icon && $(PY) -m unittest discover -s tests -q
 
 test: test-scripts test-skills ## all unit tests
 
@@ -28,6 +29,6 @@ lint:         ## compile every Python file and syntax-check shell and JS
 	sh scripts/dev/check_js.sh
 
 privacy:      ## fail if a home-directory path or a real-looking secret slipped in
-	@! grep -rnI -E '/Users/[a-z]|/home/[a-z]+/|C:\\\\Users\\\\|(ghp_|github_pat_|xox[bp]-|AKIA)[A-Za-z0-9]{12}' --exclude-dir=.git --exclude=Makefile . | grep -v 'collect.py\|test_collect.py'
+	@! grep -rnI -E '/Users/[a-z]|/home/[a-z]+/|C:\\\\Users\\\\|(ghp_|github_pat_|xox[bp]-|AKIA)[A-Za-z0-9]{12}' --exclude-dir=.git --exclude=.git --exclude=Makefile . | grep -v 'collect.py\|test_collect.py'
 
 all: lint test check-links privacy ## everything CI should run
